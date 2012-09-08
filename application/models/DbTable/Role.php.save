@@ -1,0 +1,53 @@
+<?php
+
+class Application_Model_DbTable_Role extends Zend_Db_Table_Abstract
+{
+
+    protected $_name = 'role';
+	protected $_id;
+	protected $_title;
+
+	protected $_dependentTables = array('UserRole');
+
+	public function __set($name, $value)
+	{
+		$method = 'set' . $name;
+		if (('mapper' == $name) || !method_exists($this, $method)) {
+			throw new Exception('Invalid user property');
+		}
+		$this->$method($value);
+	}
+
+	public function __get($name)
+	{
+		$method = 'get' . $name;
+		if (('mapper' == $name) || !method_exists($this, $method)) {
+			throw new Exception('Invalid user property');
+		}
+		return $this->$method();
+	}
+
+	public function setId($id)
+	{
+		$this->_id = (int) $id;
+		return $this;
+	}
+
+	public function getId()
+	{
+		return $this->_id;
+	}
+
+	public function setTitle($title)
+	{
+		$this->_title = $title;
+		return $this;
+	}
+
+	public function getTitle()
+	{
+		return $this->_title;
+	}
+
+}
+

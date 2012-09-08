@@ -1,12 +1,11 @@
 <?php
 
-class Application_Model_DbTable_User extends Zend_Db_Table_Row_Abstract
+class Application_Model_DbTable_User extends Zend_Db_Table_Abstract
 {
 
 	protected $_name = 'user';
-	protected $_tableClass = 'Application_Model_DbTable_Users';
-	protected $_dependentTables = array('Application_Model_DbTable_UserRole');
-	protected $_primary = array('id');
+	protected $_rowClass = 'User';
+	protected $_dependentTables = array('UserRole');
 
 	protected $_id;
 	protected $_unid;
@@ -14,7 +13,24 @@ class Application_Model_DbTable_User extends Zend_Db_Table_Row_Abstract
 	protected $_last_name;
 	protected $_email;
 	protected $_created_date;
-	protected $_archive;
+
+	public function __set($name, $value)
+	{
+		$method = 'set' . $name;
+		if (('mapper' == $name) || !method_exists($this, $method)) {
+			throw new Exception('Invalid user property');
+		}
+		$this->$method($value);
+	}
+
+	public function __get($name)
+	{
+		$method = 'get' . $name;
+		if (('mapper' == $name) || !method_exists($this, $method)) {
+			throw new Exception('Invalid user property');
+		}
+		return $this->$method();
+	}
 
 	public function setId($id)
 	{
@@ -71,31 +87,15 @@ class Application_Model_DbTable_User extends Zend_Db_Table_Row_Abstract
 		return $this->_email;
 	}
 
-	public function setCreatedDate($ts = null)
+	public function setCreatedDate($ts)
 	{
-		if(isset($ts)) {
-			$this->_created_date = $ts;
-		} else {
-			$this->_created_date = time();
-
-		}
+		$this->_created_date = $ts;
 		return $this;
 	}
 
 	public function getCreatedDate()
 	{
 		return $this->_created_date;
-	}
-
-	public function setArchive()
-	{
-		$this->_archive = ($archive);
-		return $this;
-	}
-
-	public function getArchive()
-	{
-		return $this->_archive;
 	}
 
 

@@ -18,25 +18,21 @@ class LoginController extends Zend_Controller_Action
  		$auth    = Zend_Auth::getInstance();
         $result  = $auth->authenticate($adapter);
 
-		//print_r($result); exit;
-
 		if (! $result->isValid()) {
 			$this->_redirect($adapter->getLoginUrl());
 		} else {
 			// process unid
 			// 2nd auth level
+			//$unid = 'u0615627';
 			$unid = 'u0615627';
 			$dbAuth = Zend_Auth::getInstance();
 			$dbAuthAdapter = new Zend_Auth_Adapter_DbTable($this->_dbh, 'user', 'unid', 'unid');
 			$dbAuthAdapter->setIdentity($unid)->setCredential($unid);
 			$dbAuthResult = $auth->authenticate($dbAuthAdapter);
-			$authenticated = false;
+			$authenticated = true;
 
 
 		}
-
-		//echo getenv('APPLICATION_ENV'); exit;
-
 
 		if($authenticated) {
 			$this->_helper->redirector('index', 'index');

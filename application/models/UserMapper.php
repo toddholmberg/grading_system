@@ -20,61 +20,99 @@ class Application_Model_UserMapper
 	public function getDbTable()
 	{
 		if (null === $this->_dbTable) {
-			$this->setDbTable('Application_Model_DbTable_User');
+			$this->setDbTable('Application_Model_DbTable_Users');
 		}
-		Zend_Debug::Dump($this->_dbTable);
 		return $this->_dbTable;
 	}
 
-	public function save(Application_Model_User $user)
+	public function save($data)
 	{
-		$data = array(
-				'unid'   => $user->getUnid(),
-				'first_name' => $user->getFirstName(),
-				'last_name' => $user->getLastName(),
-				'email'   => $user->getEmail(),
-				'created_date' => date('Y-m-d H:i:s'),
+		
+		$userdata = array(
+				'id' => $data['id'],
+				'unid'   => $data['unid'],
+				'first_name' => $data['first_name'],
+				'last_name' => $data['last_name'],
+				'email'   => $data['email'],
+				'archive'   => $data['archive'],
+				'created_date' => date('Y-m-d H:i:s')
 				);
-
-		if (null === ($id = $user->getId())) {
-			unset($data['id']);
-			$this->getDbTable()->insert($data);
+		$user = new Application_Model_DbTable_Users();
+		if (empty($userdata['id'])) {
+			unset($userdata['id']);
+			$id = $user->insert($userdata);
+			$userRole = new Application_Model_DbTable_UserRole();
+			$userRole->insert(array('user_id'=>$id, 'role_id'=>$data['role']));
+			
+			$newUser = $user->find($id);
+			return $newUser;
 		} else {
-			$this->getDbTable()->update($data, array('id = ?' => $id));
+			$user->update($userdata, array('id = ?' => $userdata['id']));
+			$userRole = new Application_Model_DbTable_UserRole();
+			$select = $userRole->select();
+			$select->where('user_id = ?', $userdata['id']);
+			
+			$roles = $userRole->fetchAll($select);
+			if(!empty($roles[0])) {
+				$currentRole = $roles[0];
+				if($currentRole->role_id !== $data['role']) {
+					$currentRole->role_id = $data['role'];
+					$currentRole->save();
+				}
+			} else {
+				$userRole->insert(array('user_id'=>$userdata['id'], 'role_id'=>$data['role']));
+			}
+
+			
+			$updatedUser = $user->find($userdata['id']);
+			return $updatedUser;
 		}
 	}
 
-	public function find($id, Application_Model_User $user)
+	public function find($id)
 	{
 		$result = $this->getDbTable()->find($id);
 		if (0 == count($result)) {
 			return;
 		}
-		$row = $result->current();
-		$user->setId($row->id)
-			->setFirstName($row->first_name)
-			->setLastName($row->last_name)
-			->setEmail($row->email)
-			->setCreatedDate($row->created_date);
-	}
+		$user = $result->current();
+		$role = new Application_Model_DbTable_Roles();
+		$userRole = new Application_Model_DbTable_UserRole();
+		$roles = $user->findManyToManyRowset($role, $userRole);
+		$userArray = $user->toArray();
+		$userArray['roles'] = $roles->toArray();
+		//Zend_Debug::dump($roles);exit;
+		return $userArray;
+		
+	}	
 
 	public function fetchAll()
 	{
 		$resultSet = $this->getDbTable()->fetchAll();
-		Zend_Debug::dump($resultSet);
-		$entries   = array();
-		foreach ($resultSet as $row) {
-			$user = new Application_Model_User();
-			$user->setId($row->id)
-				->setFirstName($row->first_name)
-				->setLastName($row->last_name)
-				->setEmail($row->email)
-				->setCreatedDate($row->created_date);
-			$users[] = $users;
+		$users   = array();
+		foreach ($resultSet as $user) {
+			$role = new Application_Model_DbTable_Roles();
+			$userRole = new Application_Model_DbTable_UserRole();
+			$roles = $user->findManyToManyRowset($role, $userRole);
+			$users[] = $user; 
 		}
-		Zend_Debug::dump($users);
 		return $users;
 	}
-
+	
+	public function fetchAllJson()
+	{
+		$resultSet = $this->getDbTable()->fetchAll();
+		$users   = array();
+		foreach ($resultSet as $user) {
+			$role = new Application_Model_DbTable_Roles();
+			$userRole = new Application_Model_DbTable_UserRole();
+			$roles = $user->findManyToManyRowset($role, $userRole);
+	
+			$userArray = $user->toArray();
+			$userArray['roles'] = $roles->toArray();
+			$users[] = $userArray;
+		}
+		return json_encode($users);
+	}
 }
 
