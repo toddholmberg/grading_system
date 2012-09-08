@@ -1,0 +1,41 @@
+
+
+<div id="application" data-dojo-type="dijit.layout.BorderContainer">
+
+	<div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+	Main Navigation
+	</div>
+
+	<div id="left-sidebar" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'leading'">
+	Module Navigation
+	</div>
+
+	<div id="content-container" data-dojo-type="dijit.layout.BorderContainer" data-dojo-props="region: 'center', id: 'contentStack'">
+
+		<div id="content-top" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+
+				<script type="text/javascript" >   
+				  var structure = [ 
+						{ field: 'unid', name: 'unid', width: '100px' },
+						{ field: 'first_name', name : 'First Name', width: '150px' },
+						{ field: 'last_name', name : 'Last Name', width: '150px' },
+						{ field: 'email', name : 'E Mail', width: '300px'}
+					 ]; 
+				</script>
+				<span dojoType="dojox.data.QueryReadStore" jsId="users" url="/user/loadusers"></span>
+				<div id="grid1" dojoType="dojox.grid.DataGrid" rowsPerPage="15" store="users" structure="structure"></div> 
+
+			<?php echo $this->paginationControl; ?>
+		</div>
+
+		<div id="content-bottom" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+			Bottom Content
+		</div>
+
+	</div>
+
+	<div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+	Footer
+	</div>
+
+</div>

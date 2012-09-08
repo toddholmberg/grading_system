@@ -1,0 +1,51 @@
+html, body, #application {
+width: 100%;
+height: 100%;
+margin: 0;
+}
+
+#header {
+width: 100%;
+height: 60px;
+margin: 0;
+}
+
+#left-sidebar {
+width: 200px;
+height: 100%;
+margin: 0;
+}
+
+#content-top {
+width: 100%;
+height: 800px;
+margin: 0;
+}
+
+#content-top {
+width: 100%;
+height: 70%;
+margin: 0;
+overflow: auto;
+}
+
+#content-bottom {
+width: 100%;
+height: 24%;
+margin: 0;
+}
+
+#footer {
+width: 100%;
+height: 30px; 
+margin: 0;
+}
+
+.claro .dojoxGridCell {
+font-size: 12px;
+}
+
+.claro #grid1 {
+width: 80%;
+
+}

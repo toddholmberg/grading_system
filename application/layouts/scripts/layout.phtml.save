@@ -1,0 +1,32 @@
+<?php echo $this->doctype(); ?>
+<head>
+
+<?php echo $this->headTitle() ?>
+<?php echo $this->headMeta() ?>
+<?php echo $this->headStyle() ?>
+
+<?php
+$this->dojo()
+	->setDjConfigOption('parseOnLoad',true)
+	->setDjConfigOption('usePlainJson',true)
+	->addStylesheetModule('dijit.themes.claro')
+	->requireModule('dojo.parser')
+	->requireModule('dojo.dom')
+	->requireModule('dijit.layout.BorderContainer')
+	->requireModule('dijit.layout.ContentPane')
+	->requireModule('dojox.grid.cells.dijit')
+	->setLocalPath('/js/dojo/dojo/dojo.js');
+echo $this->dojo();
+?>
+<?php echo $this->headLink()
+	->appendStylesheet('/css/main.css') ?>
+<?php echo $this->headScript()->appendScript('https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'); ?>
+
+</head>
+
+<body class="claro">
+
+<?php echo $this->layout()->content; ?>
+
+</body>
+</html>
