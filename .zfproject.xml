@@ -25,6 +25,7 @@
         </controllerFile>
         <controllerFile controllerName="Section">
           <actionMethod actionName="index"/>
+          <actionMethod actionName="initSections"/>
         </controllerFile>
         <controllerFile controllerName="Attendance">
           <actionMethod actionName="index"/>
@@ -37,6 +38,7 @@
         <formFile formName="Login"/>
         <formFile formName="CreateUser"/>
         <formFile formName="EditUser"/>
+        <formFile formName="InitSections"/>
       </formsDirectory>
       <layoutsDirectory>
         <layoutScriptsDirectory>
@@ -95,6 +97,9 @@
           </viewControllerScriptsDirectory>
           <viewControllerScriptsDirectory forControllerName="Grading">
             <viewScriptFile forActionName="index"/>
+          </viewControllerScriptsDirectory>
+          <viewControllerScriptsDirectory forControllerName="Section">
+            <viewScriptFile forActionName="initSection"/>
           </viewControllerScriptsDirectory>
         </viewScriptsDirectory>
         <viewHelpersDirectory/>

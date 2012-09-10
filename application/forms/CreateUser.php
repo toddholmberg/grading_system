@@ -30,29 +30,34 @@ class Application_Form_CreateUser extends Zend_Form
 			->addValidator('NotEmpty', true)
 			->addValidator('EmailAddress'); 
 
+		// Access control role
+		$roleData = new Application_Model_DbTable_Roles();
 		$role = new Zend_Form_Element_Select('role');
-		$role->setLabel('Role')
-			->setMultiOptions(array(1 => 'Admin', 2 =>'Faculty', 3 => 'Student'))
-			->setRequired(true)->addValidator('NotEmpty', true);
+		$role->setLabel('Role');
+		$role->addMultiOption(0, 'Please select...');
+		foreach($roleData->fetchAll() as $roleItem) {
+			$role->addMultiOption($roleItem['id'], $roleItem['title']);
+		}
 
-		// Current Year
-		$academic_year = new Zend_Form_Element_Select('academic_year');
-		$academic_year->setLabel('Year')
-			->setMultiOptions(array(1 =>2012, 2 =>2011))
-			->setRequired(true)->addValidator('NotEmpty', true);
-
-		// Current Year
-		$p_year = new Zend_Form_Element_Select('p_year');
-		$p_year->setLabel('P')
-			->setMultiOptions(array(1 => 1, 2 => 2, 3 => 3, 4 => 4))
-			->setRequired(true)->addValidator('NotEmpty', true);
+		// P-Year
+		$pYearData = new Application_Model_DbTable_PYears();
+		$pYear = new Zend_Form_Element_Select('p_year');
+		$pYear->setLabel('P-Year');
+		$pYear->addMultiOption(0, 'Please select...');
+		foreach($pYearData->fetchAll() as $pYearItem) {
+			$pYear->addMultiOption($pYearItem['id'], $pYearItem['p']);
+		}
 
 		//Current Section
+		$sectionData = new Application_Model_DbTable_Sections();
 		$section = new Zend_Form_Element_Select('section');
-		$section->setLabel('Section')
-			->setMultiOptions(array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5))
-			->setRequired(true)->addValidator('NotEmpty', true);
+		$section->setLabel('Section');
+		$section->addMultiOption(0, 'Please select...');
+		foreach($sectionData->fetchAll() as $sectionItem) {
+			$section->addMultiOption($sectionItem['id'], $sectionItem['number']);
+		}
 
+		// Archive user
 		$archive = new Zend_Form_Element_Checkbox('archive');
         $archive->setLabel('Archived')
                  ->setAttrib('id','archive'); 
@@ -60,14 +65,9 @@ class Application_Form_CreateUser extends Zend_Form
 		// Submit button
 		$submit = new Zend_Form_Element_Submit('submit');
 		$submit->setLabel('Save');
-		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $academic_year, $p_year, $section, $archive, $submit));
 
-
-
-
+		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $archive, $user_id, $submit));
 
 	}
-
-
 }
 

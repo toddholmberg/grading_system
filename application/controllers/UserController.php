@@ -90,8 +90,6 @@ class UserController extends Zend_Controller_Action
 			if ($this->_request->isPost()) {
 
 				$formData = $this->_request->getPost();
-
-
 				if ($form->isValid($formData)) {
 
 					$userMapper = new Application_Model_UserMapper();
@@ -105,9 +103,9 @@ class UserController extends Zend_Controller_Action
 
 				}
 			} else {
-				$user = new Application_Model_DbTable_Users();
-				$userResult = $user->find($userId)->toArray();
-				$form->populate($userResult[0]);
+				$userMapper = new Application_Model_UserMapper();
+				$user = $userMapper->find($userId);
+				$form->populate($user);
 			}
 		}
 		$this->view->editUserForm = $form;

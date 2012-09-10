@@ -9,21 +9,25 @@ class Application_Form_EditUser extends Zend_Form
 
 		$this->setName('edit_user');
 
+		// unid
 		$unid = new Zend_Form_Element_Text('unid');
 		$unid->setLabel('Unid')
 			->setRequired(true)
 			->addValidator('NotEmpty');
 
+		// First Name
 		$firstName = new Zend_Form_Element_Text('first_name');
 		$firstName->setLabel('First name')
 			->setRequired(true)
 			->addValidator('NotEmpty');
 
+		// Last Name
 		$lastName = new Zend_Form_Element_Text('last_name');
 		$lastName->setLabel('Last name')
 			->setRequired(true)
 			->addValidator('NotEmpty');
 
+		// Email
 		$email = new Zend_Form_Element_Text('email');
 		$email->setLabel('Email address')
 			->addFilter('StringToLower')
@@ -31,27 +35,39 @@ class Application_Form_EditUser extends Zend_Form
 			->addValidator('NotEmpty', true)
 			->addValidator('EmailAddress'); 
 
+		// Access control role
+		$roleData = new Application_Model_DbTable_Roles();
 		$role = new Zend_Form_Element_Select('role');
-		$role->setLabel('Role')
-			->setMultiOptions(array(1 => 'Admin', 2 =>'Student', 3 => 'Faculty'))
-			->setRequired(true)->addValidator('NotEmpty', true);
+		$role->setLabel('Role');
+		$role->addMultiOption(0, 'Please select...');
+		foreach($roleData->fetchAll() as $roleItem) {
+			$role->addMultiOption($roleItem['id'], $roleItem['title']);
+		}
 
-		// Current Year
-		$p_year = new Zend_Form_Element_Select('p_year');
-		$p_year->setLabel('Year')
-			->setMultiOptions(array(1 => 'Admin', 2 =>'Faculty', 3 => 'Student'))
-			->setRequired(true)->addValidator('NotEmpty', true);
+		// P-Year
+		$pYearData = new Application_Model_DbTable_PYears();
+		$pYear = new Zend_Form_Element_Select('p_year');
+		$pYear->setLabel('P-Year');
+		$pYear->addMultiOption(0, 'Please select...');
+		foreach($pYearData->fetchAll() as $pYearItem) {
+			$pYear->addMultiOption($pYearItem['id'], $pYearItem['p']);
+		}
 
 		//Current Section
+		$sectionData = new Application_Model_DbTable_Sections();
 		$section = new Zend_Form_Element_Select('section');
-		$section->setLabel('Section')
-			->setMultiOptions(array(1 => 'Admin', 2 =>'Faculty', 3 => 'Student'))
-			->setRequired(true)->addValidator('NotEmpty', true);
+		$section->setLabel('Section');
+		$section->addMultiOption(0, 'Please select...');
+		foreach($sectionData->fetchAll() as $sectionItem) {
+			$section->addMultiOption($sectionItem['id'], $sectionItem['number']);
+		}
 
+		// Archive user
 		$archive = new Zend_Form_Element_Checkbox('archive');
         $archive->setLabel('Archived')
                  ->setAttrib('id','archive'); 
 
+		// Hidden user_id element
 		$user_id = new Zend_Form_Element_Hidden('id');
 		$user_id->setDisableLoadDefaultDecorators(true);
 		$user_id->addDecorator('ViewHelper');
@@ -59,12 +75,11 @@ class Application_Form_EditUser extends Zend_Form
 		$user_id->removeDecorator('HtmlTag');
 		$user_id->removeDecorator('Label');	
 
+		// Submit button
 		$submit = new Zend_Form_Element_Submit('submit');
 		$submit->setLabel('Save');
-		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $p_year, $section, $archive, $submit));
 
-
+		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $archive, $user_id, $submit));
 	}
-
 }
 

@@ -1,0 +1,25 @@
+<?php
+// if the year was submitted, init the sections
+if(isset($this->initSectionsFormData)) {
+	$this->section()->buildSections($this->initSectionsFormData['year']);
+}
+
+$currentAcademicYear = $this->currentAcademicYear();
+
+$sections = $this->section()->getSectionsByAcademicYearId($currentAcademicYear['id']);
+?>
+
+
+<h2>Initialize Sections for an Academic Year</h2>
+
+<div class="span4">
+<p>
+Use this form to initialize a new year of sections. 
+</p>
+
+<p>Current Academic Year: <?php $currentAcademicYear['year']; ?></p>
+
+<?php echo $this->initSectionsForm; ?>
+
+</div>
+
