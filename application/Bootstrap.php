@@ -2,6 +2,7 @@
 
 class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
+	private $_view;
 
 	protected function _initDoctype()
 	{
@@ -13,6 +14,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 			->appendName('viewport','width=device-width,initial-scale=1.0')
 			->appendName('description','')
 			->appendName('keywords','');
+
+	
 	}
 
 	protected function _initConfig()
@@ -38,5 +41,15 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 
 	}
 
+	protected function _initJQuery()
+	{
+		$this->_view->addHelperPath(
+			'ZendX/JQuery/View/Helper', 
+			'ZendX_JQuery_View_Helper'
+		);
+	}
+
+
+	
 }
 

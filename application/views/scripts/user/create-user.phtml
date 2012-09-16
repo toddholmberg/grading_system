@@ -1,9 +1,19 @@
+<?php
+if(isset($this->message->error)) {
+	$message = 'There was an error in while creating your user:<br/>' . $this->newUser['error']['message'];
+} elseif($this->message == 'success') {
+	$message = 'User sucessfully created.';
+}
+
+?>
+
+
 <h1>Create User</h1>
+<p>
+<?php echo $message; ?>
+</p>
+
 <?php
 echo $this->createUserForm;
 ?>
-<?php if(isset($this->newUser)): ?>
-<p>
-<?php //print_r($this->newUser->toArray()); ?>
-</p>
-<?php endif; ?>
+

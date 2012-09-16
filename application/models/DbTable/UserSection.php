@@ -6,10 +6,8 @@ class Application_Model_DbTable_UserSection extends Zend_Db_Table_Abstract
     protected $_name = 'user__section';
 	protected $_primary = array('id');
 
-	protected $_id;
-	protected $_user_id;
-	protected $_section_id;
-	
+	protected $_dependentTables = array('Application_Model_DbTable_Survey', 'Application_Model_DbTable_Seminar');
+
 	protected $_referenceMap = array(
 		'User' => array(
 			'columns' => array('user_id'),
@@ -23,6 +21,10 @@ class Application_Model_DbTable_UserSection extends Zend_Db_Table_Abstract
 		)
 	);
 
+	protected $_id;
+	protected $_user_id;
+	protected $_section_id;
+	
 	public function setId($id)
 	{
 		$this->_id = (int) $id;

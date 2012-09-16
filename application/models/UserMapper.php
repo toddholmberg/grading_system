@@ -27,29 +27,45 @@ class Application_Model_UserMapper
 
 	public function save($data)
 	{
-		print_r($data);
+		// user vital data
 		$userData = array(
 				'id' => $data['id'],
 				'unid'   => $data['unid'],
 				'first_name' => $data['first_name'],
 				'last_name' => $data['last_name'],
 				'email'   => $data['email'],
-				'archive'   => $data['archive'],
+				'archive'   => empty($data['archive'])? 0 : $data['archive'],
 				'created_date' => date('Y-m-d H:i:s')
 				);
+
+		// role id
 		$roleData = array(
 			'role_id' => $data['role']
 		);
-		$sectionData = array(
-			'p_year_id'=> $data['p_year'],
-			'section_id' => $data['section']
-		);
+
+		// section id
+		if(!empty($data['p_year']) && !empty($data['section'])) {
+			$sectionData = array(
+					'p_year_id'=> $data['p_year'],
+					'section_id' => $data['section']
+					);
+		}
 		if (empty($userData['id'])) {
-			$newUser = $this->insert($userData, $roleData, $sectionData);
-			return $newUser;
-		} else {
-			$updatedUser = $this->update($userData, $roleData, $sectionData);
-			return $updatedUser;
+			// insert user	
+			try {
+				$newUser = $this->insert($userData, $roleData, $sectionData);
+				return $newUser;
+			} catch(Exception $e) {
+				return array('error' => array('message'=> $e->getMessage()));
+			}
+		} else { 
+			// update user	
+			try {
+				$updatedUser = $this->update($userData, $roleData, $sectionData);
+				return $updatedUser;
+			} catch(Exception $e) {
+				return array('error' => array('message'=> $e->getMessage()));
+			}	
 		}
 	}
 
@@ -78,78 +94,110 @@ class Application_Model_UserMapper
 			// get current academic year
 			$academicYears = new Application_Model_DbTable_AcademicYears();
 			$currentAcademicYear = $academicYears->getCurrentAcademicYear();
-			
-			$sectionMapper = new Application_Model_SectionMapper();
-			$sectionToBeMapped = $sectionMapper->findAcademicYearPYearSectionId(array(
-				'academic_year_id' => $currentAcademicYear['id'],
-				'p_year_id' => $sectionData['p_year_id'],
-				'section_id' => $sectionData['section_id']
-			));			
-			$sectionMapper->saveUserSection(array(
-				'user_id' => $userData['id'],
-				'section_id' => $sectionToBeMapped['id']
-			));	
+
+			if(!empty($sectionData)) {
+				$sectionMapper = new Application_Model_SectionMapper();
+				$sectionToBeMapped = $sectionMapper->findAcademicYearPYearSectionId(
+						$currentAcademicYear['id'],
+						$sectionData['p_year_id'],
+						$sectionData['section_id']
+						);			
+				$sectionMapper->saveUserSection($user_id, $sectionToBeMapped['id']);	
+			}
 
 			// commit the transaction
 			$this->getDbTable()->getDefaultAdapter()->commit();	
 
 			// get saved user data
-			$newUser = $user->find($userData['id']);
+			$newUser = $user->find($user_id);
 
 			return $newUser;		
-		}
-		catch(Exception $e) {
-			echo $e->getMessage();
+		} catch(Exception $e) {
 			$this->getDbTable()->getDefaultAdapter()->rollback();
+			throw new Exception($e->getMessage());
 		}
 	}
 
 
-	public function update($userdata)
+	public function update($userData, $roleData, $sectionData = null)
 	{
-		$user = new Application_Model_DbTable_Users();
-		$user->update($userdata, array('id = ?' => $userdata['id']));
-		// update role
-		$userRole = new Application_Model_DbTable_UserRole();
-		$select = $userRole->select();
-		$select->where('user_id = ?', $userdata['id']);
-		$roles = $userRole->fetchAll($select);
-		if(!empty($roles[0])) {
-			$currentRole = $roles[0];
-			if($currentRole->role_id !== $data['role']) {
-				$currentRole->role_id = $data['role'];
-				$currentRole->save();
+		// get current academic year
+		$academicYears = new Application_Model_DbTable_AcademicYears();
+		$currentAcademicYear = $academicYears->getCurrentAcademicYear();
+
+		try {
+			// begin transaction
+			$this->getDbTable()->getDefaultAdapter()->beginTransaction();	
+			$user = new Application_Model_DbTable_Users();
+			$user->update($userData, array('id = ?' => $userData['id']));
+
+			// update role
+			$userRole = new Application_Model_DbTable_UserRole();
+			$where = array('user_id = ?' => $userData['id']);
+			$currentRole = $userRole->fetchRow($where);
+			if($currentRole->role_id !== $roleData['role_id']) {
+				$currentRole->role_id = $roleData['role_id'];
+				$UserRoleId = $currentRole->save();
 			}
-		} else {
-			$userRole->insert(array('user_id'=>$userdata['id'], 'role_id'=>$data['role']));
-		}
 
-		$updatedUser = $user->find($userdata['id']);
-		return $updatedUser;
+			if(!empty($sectionData)) {
+				$sectionMapper = new Application_Model_SectionMapper();
+				$sectionToBeMapped = $sectionMapper->findAcademicYearPYearSectionId(
+						$currentAcademicYear['id'],
+						$sectionData['p_year_id'],
+						$sectionData['section_id']
+						);			
+				$sectionMapper->updateUserSection(
+						$userData['id'],
+						$currentAcademicYear['id'],
+						$sectionToBeMapped['id']
+						);	
+			}
+
+			// commit the transaction
+			$this->getDbTable()->getDefaultAdapter()->commit();	
+
+			$updatedUser = $this->find($userData['id']);
+			return $updatedUser;
+
+		} catch(Exception $e) {
+			$this->getDbTable()->getDefaultAdapter()->rollback();
+			throw new Exception($e->getMessage());
+		}
 
 	}
 
-	public function find($id)
+	public function find($user_id)
 	{
-		$result = $this->getDbTable()->find($id);
-		if (0 == count($result)) {
-			return;
+		try {
+			$result = $this->getDbTable()->find($user_id);
+			if (0 == count($result)) {
+				throw new Exception("User with id $user_id does not exist.");
+			}
+			$user = $result->current();
+
+			// get role
+			$role = new Application_Model_DbTable_Roles();
+			$userRole = new Application_Model_DbTable_UserRole();
+			$roles = $user->findManyToManyRowset($role, $userRole)->toArray();
+
+			// add related data
+			$user = $user->toArray();
+			$user['role'] = $roles[0]['id'];
+
+			// get current section
+			$academicYears = new Application_Model_DbTable_AcademicYears();
+			$currentAcademicYear = $academicYears->getCurrentAcademicYear();
+			$sectionMapper = new Application_Model_SectionMapper();
+			$section = $sectionMapper->getUserCurrentSectionMapId($user_id, $currentAcademicYear['id']);
+			$user['p_year'] = $section['p_year_id'];
+			$user['section'] = $section['section_id'];
+
+			return $user;
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
 		}
-		$user = $result->current();
 
-		// get role
-		$role = new Application_Model_DbTable_Roles();
-		$userRole = new Application_Model_DbTable_UserRole();
-		$roles = $user->findManyToManyRowset($role, $userRole)->toArray();
-
-		// add related data
-		$user = $user->toArray();
-		$user['role'] = $roles[0]['id'];
-
-		// get current section
-		
-		return $user;
-		
 	}	
 
 	public function fetchAll()
@@ -174,8 +222,15 @@ class Application_Model_UserMapper
 			$userRole = new Application_Model_DbTable_UserRole();
 			$roles = $user->findManyToManyRowset($role, $userRole);
 	
+			// get current section
+			$academicYears = new Application_Model_DbTable_AcademicYears();
+			$currentAcademicYear = $academicYears->getCurrentAcademicYear();
+			$sectionMapper = new Application_Model_SectionMapper();
+			$section = $sectionMapper->getUserCurrentSectionMapId($user->id, $currentAcademicYear['id']);
 			$userArray = $user->toArray();
 			$userArray['roles'] = $roles->toArray();
+			$userArray['p_year'] = $section['p_year_id'];
+			$userArray['section'] = $section['section_id'];
 			$users[] = $userArray;
 		}
 		return json_encode($users);

@@ -13,7 +13,6 @@ class UserController extends Zend_Controller_Action
 		// action body
 		$user = new Application_Model_UserMapper();
 		$this->view->users = $user->fetchAllJson();
-
 	}
 
 	public function loadusersAction()
@@ -63,13 +62,15 @@ class UserController extends Zend_Controller_Action
 
 
 			if ($form->isValid($formData)) {
-
-				$userMapper = new Application_Model_UserMapper();
-				$newUser = $userMapper->save($formData);
-				$this->view->newUser = $newUser;
-
+				try {
+					$userMapper = new Application_Model_UserMapper();
+					$newUser = $userMapper->save($formData);
+					$this->view->newUser = $newUser;
+					$this->view->message = 'success';
+				} catch(Exception $e) {
+					$this->view->message->error = $e;
+				}
 			} else {
-
 				$form->populate($formData);
 
 			}
@@ -90,22 +91,28 @@ class UserController extends Zend_Controller_Action
 			if ($this->_request->isPost()) {
 
 				$formData = $this->_request->getPost();
+
 				if ($form->isValid($formData)) {
 
 					$userMapper = new Application_Model_UserMapper();
 					$updateUser = $userMapper->save($formData);
-					$userArray = $updateUser[0]->toArray();
 
-					$this->view->updatedUser = $userMapper->find($userArray['id']);
+					$this->view->updatedUser = $userMapper->find($updateUser['id']);
+					$this->view->message = 'success';
+	
 				} else {
 
 					$form->populate($formData);
-
 				}
 			} else {
-				$userMapper = new Application_Model_UserMapper();
-				$user = $userMapper->find($userId);
-				$form->populate($user);
+				try{
+					$userMapper = new Application_Model_UserMapper();
+					$user = $userMapper->find($userId);
+					$form->populate($user);
+
+				} catch (Exception $e) {
+					$this->view->message->error = $e;
+				}
 			}
 		}
 		$this->view->editUserForm = $form;
@@ -114,8 +121,4 @@ class UserController extends Zend_Controller_Action
 
 
 }
-
-
-
-
 

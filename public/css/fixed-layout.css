@@ -1,3 +1,12 @@
 body {
 padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
 }
+
+#fieldset-presenter_left {
+float:left;
+}
+
+#fieldset-presenter_right {
+margin-left: 300px;
+margin-top: -21px;
+}
