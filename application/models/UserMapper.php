@@ -199,6 +199,46 @@ class Application_Model_UserMapper
 		}
 
 	}	
+	
+	public function getUserByUserSectionId($userSectionId)
+	{
+		try {
+			$db = $this->getDbTable()->getDefaultAdapter();
+			$sql = 'select user.id, user.unid, user.last_name, user.first_name from user__section left join user on user__section.user_id = user.id where user__section.id = :userSectionId';
+
+			$sth = $db->prepare($sql);
+			$sth->bindParam(':userSectionId', $userSectionId);
+			if($sth->execute()) {
+				$result = $sth->fetch(PDO::FETCH_ASSOC);
+				return $result;
+			} else {
+				echo $sth->error_Info();
+				throw new Exception($sth->errorInfo());
+			}		
+
+
+		} catch (Exception $e) {
+			throw new Exception("userMapper::getUserByUserSectionId(): " . $e->getMessage());
+		}	
+	}
+
+	public function findUserByUnid($unid)
+	{
+		try {
+			$table = $this->getDbTable();
+			$select = $table->select()->where('unid = ?',$unid);
+			$row = $table->fetchRow($select);
+
+			if(isset($row)) {
+				return $row->toArray();
+			} else {
+				return false;
+			}		
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+	}
+
 
 	public function fetchAll()
 	{

@@ -149,5 +149,42 @@ select aps.id from academic_year__p_year__section aps left join academic_year ay
 		}
 	}	
 
+	public function getUserSectionData($userId)
+	{
+		$currentUserSectionMap = $this->getUserCurrentSectionMapId($userId);
+		$table = new Application_Model_DbTable_UserSection();
+		$select = $table->select()
+			->where('user_id = ?', $userId)
+			->where('section_id = ?', $currentUserSectionMap['id']);
+		$row = $table->fetchRow($select);
+		if(!empty($row)) {
+			return $row;
+		} else {
+			return false;
+		}
+		
+	}
+
+	public function getUserSectionDataByUnid($unid)
+	{
+		$userMapper = new Application_Model_UserMapper();
+		$user = $userMapper->findUserByUnid($unid);
+
+		$currentUserSectionMap = $this->getUserCurrentSectionMapId($user['id']);
+		$table = new Application_Model_DbTable_UserSection();
+		$select = $table->select()
+			->where('user_id = ?', $user['id'])
+			->where('section_id = ?', $currentUserSectionMap['id']);
+		$row = $table->fetchRow($select);
+		if(!empty($row)) {
+			return $row;
+		} else {
+			return false;
+		}
+		
+	}
+
+	
+
 }
 

@@ -7,6 +7,7 @@ class UploadController extends Zend_Controller_Action
     public function init()
     {
 		$this->_config = Zend_Registry::get('config');
+		$this->view->message = new stdClass();
     }
 
     public function indexAction()
@@ -24,12 +25,19 @@ class UploadController extends Zend_Controller_Action
 				try {
 					if ($form->survey->receive()) {
 						$this->view->location = $form->survey->getFileName();	
-						$surveyMapper = new Application_Model_SurveyMapper($this->view->location);
-						$this->view->surveyData = $surveyMapper->parse();
+						$uploadMapper = new Application_Model_UploadMapper($this->view->location);
+						$uploadData = $uploadMapper->parse();
+
+
+						$surveyMapper = new Application_Model_SurveyMapper($uploadData, $formData);
+						
+//						Zend_Debug::dump($surveyMapper); exit;
+	
+						//$this->view->surveyData = $surveyMapper->parse();
 					}
 
 				} catch(Exception $e) {
-					$this->view->message->error = $e;
+					$this->view->message->error = $e->getMessage();
 				}
 			}
 

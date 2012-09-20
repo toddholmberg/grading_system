@@ -78,6 +78,7 @@
         <modelFile modelName="PYear"/>
         <modelFile modelName="AcademicYear"/>
         <modelFile modelName="Survey"/>
+        <modelFile modelName="UploadMapper"/>
       </modelsDirectory>
       <modulesDirectory/>
       <viewsDirectory>

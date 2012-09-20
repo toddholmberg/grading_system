@@ -1,3 +1,20 @@
+<?php
+$seminarMapper = new Application_Model_SeminarMapper();
+$surveyMapper = new Application_Model_SurveyMapper();
+
+// get all seminars for curent academic year
+$seminars = $seminarMapper->findCurrentSeminars();
+
+// get surveys for each seminar
+foreach($seminars as $index => $seminar) {
+	$surveys = $surveyMapper->getSeminarSurveys($seminar['seminar_id']);
+	$seminars[$index]['surveys'] = $surveys;
+	
+}
+
+
+
+?>
 <br /><br />
 <div id="view-content">
 	<p>View script for controller <b>Grading</b> and script/action name <b>index</b></p>

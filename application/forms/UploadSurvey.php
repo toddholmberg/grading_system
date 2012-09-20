@@ -114,11 +114,11 @@ class Application_Form_UploadSurvey extends Zend_Form
 		$submit->setLabel('Submit');
 
 
+//		$this->addDisplayGroup(array($type,$upload, $submit), 'upload_tools_top');
 		$this->addDisplayGroup(array($type,$upload), 'upload_tools_top');
 		$this->addDisplayGroup(array($unid1, $seminarDate1, $unid2, $seminarDate2,$unid3, $seminarDate3,$unid4, $seminarDate4,$unid5, $seminarDate5), 'presenter_left');
-		$this->addDisplayGroup(array($unid6, $seminarDate6, $unid7, $seminarDate7, $unid8, $seminarDate8, $unid9, $seminarDate9, $unid10, $seminarDate10), 'presenter_right');
+		//$this->addDisplayGroup(array($unid6, $seminarDate6, $unid7, $seminarDate7, $unid8, $seminarDate8, $unid9, $seminarDate9, $unid10, $seminarDate10), 'presenter_right');
 		$this->addDisplayGroup(array($submit), 'upload_tools_bottom');
-
 	}
 
 
