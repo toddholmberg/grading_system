@@ -31,9 +31,6 @@ class UploadController extends Zend_Controller_Action
 
 						$surveyMapper = new Application_Model_SurveyMapper($uploadData, $formData);
 						
-//						Zend_Debug::dump($surveyMapper); exit;
-	
-						//$this->view->surveyData = $surveyMapper->parse();
 					}
 
 				} catch(Exception $e) {

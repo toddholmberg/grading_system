@@ -115,21 +115,18 @@ class Application_Model_SeminarMapper
 			$currentAcademicYear = $academicYears->getCurrentAcademicYear();
 			$db = Zend_Db_Table::getDefaultAdapter();
 			$sql = 'select s.id as seminar_id, s.date as seminar_date, s.presenter_user_section_id, us.user_id as presenter_user_id, user.unid as presenter_unid, user.last_name as presenter_last_name, user.first_name as presenter_first_name from seminar s left join user__section us on s.presenter_user_section_id = us.id left join academic_year__p_year__section aps on aps.id = us.section_id left join user on us.user_id = user.id where aps.academic_year_id = :academic_year_id';
+			if(isset($pYearId) && isset($sectionId)) {
+				$sql .= ' and aps.p_year_id = :pyear and aps.section_id = :section';
+			}
+
 			$sth = $db->prepare($sql);
 			$sth->bindParam(':academic_year_id', $currentAcademicYear['id']);
+			if(isset($pYearId) && isset($sectionId)) {
+				$sth->bindParam(':pyear', $pYearId);
+				$sth->bindParam(':section', $sectionId);
+			}
 			if($sth->execute()) {
 				$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-/*
-				$seminar = $result;
-				$seminar['presenter'] = array(
-					'id' => $result['presenter_user_id'],
-					'unid' => $result['presenter_unid'],
-					'last_name' => $result['presenter_last_name'],
-					'first_name' => $result['presenter_first_name'],
-					'user_section_id' => $result['presenter_user_section_id']
-				);
-				//unset($result['presenter_user_id'], $result['presenter_unid'], $result['presenter_last_name'], $result['presenter_first_name'], $result['presenter_user_section_id']);
-*/
 				return $result;
 			} else {
 				throw new Exception($sth->errorInfo());

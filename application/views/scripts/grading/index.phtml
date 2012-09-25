@@ -3,19 +3,161 @@ $seminarMapper = new Application_Model_SeminarMapper();
 $surveyMapper = new Application_Model_SurveyMapper();
 
 // get all seminars for curent academic year
-$seminars = $seminarMapper->findCurrentSeminars();
+$pyear = 3;
+$section = 1;
+$seminars = $seminarMapper->findCurrentSeminars($pyear, $section);
 
 // get surveys for each seminar
 foreach($seminars as $index => $seminar) {
 	$surveys = $surveyMapper->getSeminarSurveys($seminar['seminar_id']);
 	$seminars[$index]['surveys'] = $surveys;
-	
 }
 
-
-
 ?>
-<br /><br />
-<div id="view-content">
-	<p>View script for controller <b>Grading</b> and script/action name <b>index</b></p>
+
+<style type="text/css">
+a {
+    color: #0254EB
+}
+a:visited {
+    color: #0254EB
+}
+a.morelink {
+    text-decoration:none;
+    outline: none;
+}
+.morecontent span {
+    display: none;
+}
+.comment {
+    width: 100px;
+}
+.tab-table {
+	font-size: smaller;
+	overflow: auto;
+}
+</style>
+
+<div class="container-fluid">
+	<div class="row-fluid span12">
+		<div class="btn-group span1 year_section" data-toggle="buttons-radio" id="pyear-buttons">
+		  <button type="button" class="btn" value="p3">P3</button>
+		  <button type="button" class="btn" value="p4">P4</button>
+		</div>
+
+		<div class="btn-group span4 year_section" data-toggle="buttons-radio" id="section-buttons">
+		  <button type="button" class="btn" value="s1">Section 1</button>
+		  <button type="button" class="btn" value="s2">Section 2</button>
+		  <button type="button" class="btn" value="s3">Section 3</button>
+		  <button type="button" class="btn" value="s4">Section 4</button>
+		  <button type="button" class="btn" value="s5">Section 5</button>
+		</div>
+
+	</div><!-- end row-fluid span12 -->
+	<div class="row-fluid span12">
+		<h3><?php echo "Development Seminar Settings: P$pyear - Section $section"; ?></h3>
+	</div><!-- end row-fluid span12 -->
+
+
+
+<?php foreach($seminars as $data): ?>
+	<div class="row-fluid span12">
+	<h4 "span2">
+	<?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name'] . '(' . $data['presenter_user_id']  . ') - ' . $data['presenter_unid'] . ' - ' . $data['seminar_date']; ?>
+	</h4>
+	<?php if(!empty($data['surveys'])): ?>		
+
+<!-- BEGIN presenter_details -->
+	<table  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-condensed" id="surveys">
+		<caption></caption>
+		<colgroup />
+		<colgroup span="2" title="title" />
+		<thead>
+			<tr>
+				<th scope="col" colspan="2">Presenter</th>
+				<th scope="col" colspan="7">Student Survey Data Averages</th>
+				<th scope="col" colspan="7">Faculty Survey Data Averages</th>
+				<th scope="col" colspan="4">Final Scores</th>
+			</tr>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Unid</th>
+				<th scope="col">Pres.</br>Style</th>
+				<th scope="col">Inst.</br>Materials</th>
+				<th scope="col">Overall</br>Pres.</th>
+				<th scope="col">Clinical</br>Data</th>
+				<th scope="col">Conc.</th>
+				<th scope="col">Q&amp;A</th>
+				<th scope="col">Overall</br>Knowledge</th>
+				<th scope="col">Pres.</br>Style</th>
+				<th scope="col">Inst.</br>Materials</th>
+				<th scope="col">Overall</br>Pres.</th>
+				<th scope="col">Clinical</br>Data</th>
+				<th scope="col">Conc.</th>
+				<th scope="col">Q&amp;A</th>
+				<th scope="col">Overall</br>Know.</th>
+				<th scope="col">Prep.</th>
+				<th scope="col">Prof.</th>
+				<th scope="col">Att.</th>
+				<th scope="col">Total</th>
+			</tr>	
+		</thead>
+		<tfoot>
+			<tr>
+				
+			</tr>
+		</tfoot>
+		<tbody>		
+			<tr>
+				<td><?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name']; ?></td>
+				<td><?php echo $data['presenter_unid']; ?></td>
+				<?php foreach($this->surveyAverages($data['surveys'], 2) as $field): ?>
+				<td><?php echo $field['average']; ?></td>
+				<?php endforeach; ?>
+
+				<?php foreach($this->surveyAverages($data['surveys'], 3) as $field): ?>
+				<td><?php echo $field['average']; ?></td>
+				<?php endforeach; ?>
+
+				<td id="f1_<?php echo $data['presenter_user_section_id']; ?>"</td>
+				<td id="f2_<?php echo $data['presenter_user_section_id']; ?>"</td>
+				<td><?php echo $this->attendanceScore($data['presenter_user_section_id']); ?></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table><!-- END presenter_details -->
+
+<div class="surveys">
+
+<div class="tabs">
+	<ul>
+		<li><a href="#seminar_faculty_<?php echo $data['seminar_id']; ?>">Faculty Surveys</a></li>
+		<li><a href="#seminar_students_<?php echo $data['seminar_id']; ?>">Students Surveys</a></li>
+		<li><a href="#seminar_attendance_<?php echo $data['seminar_id']; ?>">Attendance</a></li>
+		<li><a href="#seminar_scoring_<?php echo $data['seminar_id']; ?>">Faculty Score Entry</a></li>
+	</ul>
+	<div class="tab-table" id="seminar_faculty_<?php echo $data['seminar_id']; ?>">
+		<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
+	</div>
+	<div class="tab-table" id="seminar_students_<?php echo $data['seminar_id']; ?>">
+		<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2)); ?>
+	</div>
+	<div class="tab-table" id="seminar_attendance_<?php echo $data['seminar_id']; ?>">
+		<?php echo $this->partial('grading/partials/attendance.phtml', array('p_year_id' => 3, 'section_id' => 1)); ?>
+	</div>
+	<div class="tab-table" id="seminar_scoring_<?php echo $data['seminar_id']; ?>">
+		<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section)); ?>
+	</div>
 </div>
+
+</div><!-- End surveys -->
+
+</div> <!-- end container-fluid -->
+
+	
+	<?php else: ?>
+	<p>No surveys recorded for this seminar</p>
+	<?php endif; ?>
+	</div> <!-- end row-fluid span12 -->
+<?php endforeach; ?>
+

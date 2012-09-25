@@ -1,0 +1,112 @@
+<?php
+$surveys = $this->surveys;
+$role_id = $this->role_id;
+?>
+
+<table  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-condensed" id="surveys">
+		<caption></caption>
+		<colgroup />
+		<colgroup span="2" title="title" />
+		<thead>
+			<tr>
+				<th scope="col" colspan="2">Reviewer</th>
+				<th scope="col" colspan="10">Survey Data</th>
+			</tr>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">unid</th>
+				<th scope="col" colspan="5">Presentation Style</th>
+				<th scope="col" colspan="5">Instructional Materials</th>
+				<th scope="col" colspan="6">Overall Presentation</th>
+				<th scope="col" colspan="7">Clinical Data</th>
+				<th scope="col" colspan="5">Conclusions</th>
+				<th scope="col" colspan="3">Q &amp; A</th>
+				<th scope="col" colspan="6">Overall Knowledge</th>
+				<th scope="col">Liked</th>
+				<th scope="col">Needs Improvement</th>
+				<th scope="col">General</th>
+			</tr>	
+		</thead>
+		<tfoot>
+			<tr>
+			</tr>
+		</tfoot>
+		<tbody>
+			<?php foreach($surveys as $survey): ?>
+			<?php if($survey['reviewer']['role_id'] == $role_id): ?>
+			<tr>
+				<td><?php echo $survey['reviewer']['last_name'] . ', ' . $survey['reviewer']['first_name']; ?></td>
+				<td><?php echo $survey['reviewer']['unid']; ?></td>
+				<?php foreach($survey as $key => $value): ?>
+				<?php if(in_array($key, array('id', 'seminar_id', 'reviewer_user_section_id','survey_date', 'qualtrics_is', 'grade_sum','grade_weighted_average','grade_standard_deviation', 'updated', 'reviewer'))): ?>
+					<?php continue; ?>
+				<?php endif; ?>
+					<?php if(strstr($key, 'ps_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'im_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'op_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'cd_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'cc_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'qa_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'ok_')): ?>
+						<?php if(strstr($key, '_comments')): ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
+						<?php else: ?>
+						<td><?php echo $survey[$key]; ?></td>	
+						<?php endif;?>	
+					<?php endif;?>
+
+					<?php if(strstr($key, 'comments_')): ?>
+						<?php if(($role_id == 3) && in_array($key, array('comment_like','comment_improve'))): ?>
+							<?php exit; ?>
+						<?php endif; ?>
+						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>	
+					<?php endif;?>
+
+				<?php endforeach; ?>
+			</tr>
+				<?php endif; ?>
+			<?php endforeach; ?>
+		</tbody>
+	</table>

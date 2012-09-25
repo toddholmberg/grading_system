@@ -32,12 +32,13 @@ class Application_Model_SurveyMapper
 				}
 				
 				$formattedSurvey = $this->_format($survey, $presenterData['seminarId']);
-				$this->insert($formattedSurvey);
+				$this->_insert($formattedSurvey);
+
 			}
 		}
 	}
 
-	public function insert($survey)
+	private function _insert($survey)
 	{
 		try {
 				//Zend_Debug::dump($survey);
@@ -193,6 +194,7 @@ class Application_Model_SurveyMapper
 			$rows = $table->fetchAll($select);
 			if(!empty ($rows)) {
 				$surveys = $this->getReviewerData($rows->toArray());
+
 				return $surveys;
 			} else {
 				return false;
@@ -206,9 +208,14 @@ class Application_Model_SurveyMapper
 	public function getReviewerData($surveys)
 	{
 		$userMapper = new Application_Model_UserMapper();
+		$userRoleMapper = new Application_Model_UserRoleMapper();
 		foreach($surveys as $index =>$survey) {
 			$surveys[$index]['reviewer'] = $userMapper->getUserByUserSectionId($survey['reviewer_user_section_id']);
 			$surveys[$index]['reviewer']['user_section_id'] = $survey['reviewer_user_section_id'];
+
+			$roleData = $userRoleMapper->getUserRoleFromUserId($surveys[$index]['reviewer']['id']);
+			$surveys[$index]['reviewer']['role_id'] = $roleData['role_id'];	
+
 			unset($surveys[$index]['reviewer_user_seciton_id']);
 		}
 		return $surveys;
@@ -414,5 +421,6 @@ class Application_Model_SurveyMapper
 		}
 		return $this->_dbTable;
 	}
+
 
 }

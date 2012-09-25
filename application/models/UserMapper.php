@@ -199,6 +199,34 @@ class Application_Model_UserMapper
 		}
 
 	}	
+
+	public function getFacultyByPYearSectionId($pyearName, $sectionNumber)
+	{
+
+		// select * from user left join user__section us on user.id = us.user_id left join academic_year__p_year__section aps on aps.id = us.section_id left join p_year on aps.p_year_id = p_year.id left join section on aps.section_id = section.id left join user__role ur on ur.user_id = user.id where section.number = 1 and p_year.p = 3 and ur.role_id = 3;
+
+		try {
+			$db = $this->getDbTable()->getDefaultAdapter();
+			$sql = 'select user.id, user.unid, user.last_name, user.first_name from user__section left join user on user__section.user_id = user.id where user__section.id = :userSectionId';
+
+			$sth = $db->prepare($sql);
+			$sth->bindParam(':userSectionId', $userSectionId);
+			if($sth->execute()) {
+				$result = $sth->fetch(PDO::FETCH_ASSOC);
+				return $result;
+			} else {
+				echo $sth->error_Info();
+				throw new Exception($sth->errorInfo());
+			}		
+
+
+		} catch (Exception $e) {
+			throw new Exception("userMapper::getUserByUserSectionId(): " . $e->getMessage());
+		}	
+	}
+
+
+
 	
 	public function getUserByUserSectionId($userSectionId)
 	{

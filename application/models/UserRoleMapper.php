@@ -27,7 +27,7 @@ class Application_Model_UserRoleMapper
 	public function save(Application_Model_DbTable_UserRole $userrole)
 	{
 		$data = array(
-				'user_id'   => $userrole->getUserId()
+				'user_id'   => $userrole->getUserId(),
 				'role_id'   => $userrole->getRoleId()
 				);
 
@@ -64,6 +64,24 @@ class Application_Model_UserRoleMapper
 		}
 		return $userroles;
 	}
+
+	public function  getUserRoleFromUserId($userId)
+	{
+		try {
+			$table = $this->getDbTable();
+			$select = $table->select()
+				->where('user_id = ?', $userId);
+			$row = $table->fetchRow($select);
+			if(!empty($row)) {
+				return $row->toArray();
+			} else {
+				throw false;
+			}
+		} catch(Exception $e) {
+			echo $this->errorMessage();
+		}
+	}	
+
 
 }
 
