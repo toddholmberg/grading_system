@@ -117,7 +117,7 @@ select aps.id from academic_year__p_year__section aps left join academic_year ay
 		}
 	}
 
-	public function updateUserSection($user_id, $academic_year_id, $newSectionId)
+	public function updateUserSection($user_id, $academic_year_id, $newSectionId, $is_grader)
 	{
 		try {
 			//echo "updateUserSection: params: $user_id, $academic_year_id, $newSectionId<br/>";
@@ -127,10 +127,19 @@ select aps.id from academic_year__p_year__section aps left join academic_year ay
 			$userSectionTable = new Application_Model_DbTable_UserSection();
 
 			if(isset($currentUserSectionMap['id'])) {
+/*
 				// return if no change in section
-				if($currentUserSectionMap['id'] == $newSectionId) {
+				if($currentUserSectionMap['id'] == $newSectionId && $is_grader == 0) {
 					return;
 				}
+*/
+				// check if 2 graders already exist for this section
+				if($is_grader == 1) {
+					if(!$this->validateGrader($newSectionId)) {
+						throw new Exception("There are already 2 faculty graders in that section.");
+					}
+				}
+
 				// update current section
 				$userSectionRow = $userSectionTable->fetchRow(
 						$userSectionTable->select()
@@ -139,6 +148,7 @@ select aps.id from academic_year__p_year__section aps left join academic_year ay
 						);
 
 				$userSectionRow->section_id = $newSectionId;
+				$userSectionRow->is_grader = $is_grader;
 				$userSectionRow->save();
 			} else {
 				// add section for current academic year	
@@ -148,6 +158,25 @@ select aps.id from academic_year__p_year__section aps left join academic_year ay
 			throw new Exception($e->getMessage());
 		}
 	}	
+
+	public function validateGrader($sectionMapId)
+	{
+		try {
+			$userSectionTable = new Application_Model_DbTable_UserSection();
+			$rowset = $userSectionTable->fetchAll(
+				$userSectionTable->select()
+					->where('section_id = ?', $sectionMapId)
+					->where('is_grader = ?', 1)
+			);
+			if(count($rowset) >= 2) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch(Exception $e) {
+			echo 'SectionMapper::validateGrader(): ' . $e->getMessage();
+		}
+	}
 
 	public function getUserSectionData($userId)
 	{

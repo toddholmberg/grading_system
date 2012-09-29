@@ -54,7 +54,6 @@ class Application_Form_EditUser extends Zend_Form
 				$pYear->addMultiOption($pYearItem['id'], $pYearItem['p']);
 			}
 		}
- 
 
 		//Current Section
 		$sectionData = new Application_Model_DbTable_Sections();
@@ -64,7 +63,11 @@ class Application_Form_EditUser extends Zend_Form
 		foreach($sectionData->fetchAll() as $sectionItem) {
 			$section->addMultiOption($sectionItem['id'], $sectionItem['number']);
 		}
-  
+
+		// Set as grader
+		$grader = new Zend_Form_Element_Checkbox('is_grader');
+        $grader->setLabel('Grader')
+                 ->setAttrib('id','is_grader'); 
 
 		// Archive user
 		$archive = new Zend_Form_Element_Checkbox('archive');
@@ -83,7 +86,7 @@ class Application_Form_EditUser extends Zend_Form
 		$submit = new Zend_Form_Element_Submit('submit');
 		$submit->setLabel('Save');
 
-		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $archive, $user_id, $submit));
+		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $grader, $archive, $user_id, $submit));
 	}
 }
 

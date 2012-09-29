@@ -47,9 +47,13 @@ class Application_Model_UserMapper
 		if(!empty($data['p_year']) && !empty($data['section'])) {
 			$sectionData = array(
 					'p_year_id'=> $data['p_year'],
-					'section_id' => $data['section']
+					'section_id' => $data['section'],
+					'is_grader' => $data['is_grader']
 					);
 		}
+
+			
+
 		if (empty($userData['id'])) {
 			// insert user	
 			try {
@@ -95,6 +99,7 @@ class Application_Model_UserMapper
 			$academicYears = new Application_Model_DbTable_AcademicYears();
 			$currentAcademicYear = $academicYears->getCurrentAcademicYear();
 
+			// map the section details
 			if(!empty($sectionData)) {
 				$sectionMapper = new Application_Model_SectionMapper();
 				$sectionToBeMapped = $sectionMapper->findAcademicYearPYearSectionId(
@@ -140,6 +145,7 @@ class Application_Model_UserMapper
 				$UserRoleId = $currentRole->save();
 			}
 
+			// update section map
 			if(!empty($sectionData)) {
 				$sectionMapper = new Application_Model_SectionMapper();
 				$sectionToBeMapped = $sectionMapper->findAcademicYearPYearSectionId(
@@ -147,11 +153,16 @@ class Application_Model_UserMapper
 						$sectionData['p_year_id'],
 						$sectionData['section_id']
 						);			
+
 				$sectionMapper->updateUserSection(
 						$userData['id'],
 						$currentAcademicYear['id'],
-						$sectionToBeMapped['id']
-						);	
+						$sectionToBeMapped['id'],
+						$sectionData['is_grader']	
+						);
+
+
+					
 			}
 
 			// commit the transaction
@@ -190,9 +201,13 @@ class Application_Model_UserMapper
 			$currentAcademicYear = $academicYears->getCurrentAcademicYear();
 			$sectionMapper = new Application_Model_SectionMapper();
 			$section = $sectionMapper->getUserCurrentSectionMapId($user_id, $currentAcademicYear['id']);
+
 			$user['p_year'] = $section['p_year_id'];
 			$user['section'] = $section['section_id'];
-
+	
+			$userSectionData = $sectionMapper->getUserSectionData($user_id);
+			$user['is_grader'] = $userSectionData['is_grader'];
+		
 			return $user;
 		} catch(Exception $e) {
 			throw new Exception($e->getMessage());
@@ -207,13 +222,14 @@ class Application_Model_UserMapper
 
 		try {
 			$db = $this->getDbTable()->getDefaultAdapter();
-			$sql = 'select user.id, user.unid, user.last_name, user.first_name from user__section left join user on user__section.user_id = user.id where user__section.id = :userSectionId';
+			$sql = 'select * from user left join user__section us on user.id = us.user_id left join academic_year__p_year__section aps on aps.id = us.section_id left join p_year on aps.p_year_id = p_year.id left join section on aps.section_id = section.id left join user__role ur on ur.user_id = user.id where section.number = :sectionNumber and p_year.p = :pyearName and ur.role_id = 3 and us.is_grader = 1';
 
 			$sth = $db->prepare($sql);
-			$sth->bindParam(':userSectionId', $userSectionId);
+			$sth->bindParam(':sectionNumber', $sectionNumber);
+			$sth->bindParam(':pyearName', $pyearName);
 			if($sth->execute()) {
-				$result = $sth->fetch(PDO::FETCH_ASSOC);
-				return $result;
+				$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+				return $results;
 			} else {
 				echo $sth->error_Info();
 				throw new Exception($sth->errorInfo());

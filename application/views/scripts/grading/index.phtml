@@ -3,14 +3,16 @@ $seminarMapper = new Application_Model_SeminarMapper();
 $surveyMapper = new Application_Model_SurveyMapper();
 
 // get all seminars for curent academic year
-$pyear = 3;
+$pyear = 3; 
 $section = 1;
 $seminars = $seminarMapper->findCurrentSeminars($pyear, $section);
 
 // get surveys for each seminar
 foreach($seminars as $index => $seminar) {
 	$surveys = $surveyMapper->getSeminarSurveys($seminar['seminar_id']);
+	usort($surveys, "compareReviewerLastNames");
 	$seminars[$index]['surveys'] = $surveys;
+	$seminars[$index]['scores'] = $seminarMapper->getSeminarScores($seminar['seminar_id']);
 }
 
 ?>
@@ -119,9 +121,9 @@ a.morelink {
 				<td><?php echo $field['average']; ?></td>
 				<?php endforeach; ?>
 
-				<td id="f1_<?php echo $data['presenter_user_section_id']; ?>"</td>
-				<td id="f2_<?php echo $data['presenter_user_section_id']; ?>"</td>
-				<td><?php echo $this->attendanceScore($data['presenter_user_section_id']); ?></td>
+				<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
+				<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
+				<td><?php echo $this->attendance()->score($data['presenter_user_section_id']); ?></td>
 				<td></td>
 			</tr>
 		</tbody>
@@ -131,11 +133,15 @@ a.morelink {
 
 <div class="tabs">
 	<ul>
+		<li><a href="#seminar_scoring_<?php echo $data['seminar_id']; ?>">Faculty Score Entry</a></li>
+		<li><a href="#seminar_attendance_<?php echo $data['seminar_id']; ?>">Attendance</a></li>
 		<li><a href="#seminar_faculty_<?php echo $data['seminar_id']; ?>">Faculty Surveys</a></li>
 		<li><a href="#seminar_students_<?php echo $data['seminar_id']; ?>">Students Surveys</a></li>
-		<li><a href="#seminar_attendance_<?php echo $data['seminar_id']; ?>">Attendance</a></li>
-		<li><a href="#seminar_scoring_<?php echo $data['seminar_id']; ?>">Faculty Score Entry</a></li>
 	</ul>
+
+	<div class="tab-table" id="seminar_scoring_<?php echo $data['seminar_id']; ?>">
+		<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section, 'seminar_id' => $data['seminar_id'], 'presenter_user_section_id' => $data['presenter_user_section_id'], 'scores' => $data['scores'])); ?>
+	</div>
 	<div class="tab-table" id="seminar_faculty_<?php echo $data['seminar_id']; ?>">
 		<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
 	</div>
@@ -143,11 +149,9 @@ a.morelink {
 		<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2)); ?>
 	</div>
 	<div class="tab-table" id="seminar_attendance_<?php echo $data['seminar_id']; ?>">
-		<?php echo $this->partial('grading/partials/attendance.phtml', array('p_year_id' => 3, 'section_id' => 1)); ?>
+		<?php echo $this->partial('grading/partials/attendance.phtml', array('p_year_id' => 3, 'section_id' => 1, 'presenter_user_section_id' => $data['presenter_user_section_id'])); ?>
 	</div>
-	<div class="tab-table" id="seminar_scoring_<?php echo $data['seminar_id']; ?>">
-		<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section)); ?>
-	</div>
+
 </div>
 
 </div><!-- End surveys -->
@@ -160,4 +164,15 @@ a.morelink {
 	<?php endif; ?>
 	</div> <!-- end row-fluid span12 -->
 <?php endforeach; ?>
+
+
+<?php 
+
+function compareReviewerLastNames($a, $b)
+{
+	return strnatcmp($a['reviewer']['last_name'], $b['reviewer']['last_name']);
+}
+
+?>
+
 

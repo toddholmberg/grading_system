@@ -29,19 +29,31 @@ $(function($) {
 		});
 	});
 
-	$('.edit').editable('http://www.example.com/save.php', {
-         indicator : 'Saving...',
-         tooltip   : 'Click to edit...'
-     });
-
 	$(function() {
 		$( ".tabs" ).tabs();
 	});
 
 
-});
+	// faculty score submission
+	$('.score').submit(function(e){
 
-$(document).ready(function() {
+	$.post(
+		"/grading/save-scores", 
+		$(this).serialize(),
+		function(data) {
+			var score = $.parseJSON(data);
+			var prepField = '#prep_' + score.presenter_user_section_id;
+			var profField = '#prof_' + score.presenter_user_section_id;
+			$(prepField).html(score.prepAvg);
+			$(profField).html(score.profAvg);
+		}
+	);	
+
+		e.preventDefault();
+	});	
+
+
+	// more/less functionality
 	var showChar = 50;
 	var ellipsestext = "...";
 	var moretext = "more";

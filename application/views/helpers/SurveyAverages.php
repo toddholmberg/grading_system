@@ -60,7 +60,12 @@ class Zend_View_Helper_SurveyAverages extends Zend_View_Helper_Abstract
 	private function _calculateAverages($averages)
 	{
 		foreach($averages as $field => $data){
-			$averages[$field]['average'] = round(($data['total']/$data['count']), 3);
+			// only calculate if count != 0
+			if($data['count'] != 0) {
+				$averages[$field]['average'] = round(($data['total']/$data['count']), 3);
+			} else {
+				$averages[$field]['average'] = 0;
+			}
 		}
 		return $averages;
 	}

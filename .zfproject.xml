@@ -32,11 +32,15 @@
         </controllerFile>
         <controllerFile controllerName="Grading">
           <actionMethod actionName="index"/>
+          <actionMethod actionName="saveScores"/>
         </controllerFile>
         <controllerFile controllerName="Upload">
           <actionMethod actionName="index"/>
           <actionMethod actionName="survey"/>
           <actionMethod actionName="users"/>
+        </controllerFile>
+        <controllerFile controllerName="Score">
+          <actionMethod actionName="index"/>
         </controllerFile>
       </controllersDirectory>
       <formsDirectory>
@@ -46,6 +50,7 @@
         <formFile formName="InitSections"/>
         <formFile formName="UploadUsers"/>
         <formFile formName="UploadSurvey"/>
+        <formFile formName="FacultyScoring"/>
       </formsDirectory>
       <layoutsDirectory>
         <layoutScriptsDirectory>
@@ -127,6 +132,12 @@
           </viewControllerScriptsDirectory>
           <viewControllerScriptsDirectory forControllerName="Upload">
             <viewScriptFile forActionName="users"/>
+          </viewControllerScriptsDirectory>
+          <viewControllerScriptsDirectory forControllerName="Score">
+            <viewScriptFile forActionName="index"/>
+          </viewControllerScriptsDirectory>
+          <viewControllerScriptsDirectory forControllerName="Grading">
+            <viewScriptFile forActionName="saveScores"/>
           </viewControllerScriptsDirectory>
         </viewScriptsDirectory>
         <viewHelpersDirectory/>

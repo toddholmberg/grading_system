@@ -1,10 +1,39 @@
 <?php
 
-echo $this->p_year_id . "<br/>";
-echo $this->section_id . "<br/>";
+//$this->p_year_id
+//$this->section_id
 
 // get assigned scoring faculty
 
 $userMapper = new Application_Model_UserMapper();
+$graders = $userMapper->getFacultyByPYearSectionId(
+	$this->p_year_id,
+	$this->section_id
+);
+
 
 ?>
+
+<?php foreach($graders as $grader): ?>
+<?php 
+$prep_value = 0;
+$prof_value = 0;
+if(!empty($this->scores['graderScores'][$grader['user_id']])) {
+		$prep_value = $this->scores['graderScores'][$grader['user_id']]['prep'];
+		$prof_value = $this->scores['graderScores'][$grader['user_id']]['prof'];
+	}
+
+?>
+<h4><?php echo $grader['first_name'] . ', ' . $grader['last_name']; ?></h4>
+<form class="form-inline score">
+	<input type="hidden" name="presenter_user_section_id" value="<?php echo $this->presenter_user_section_id; ?>" />
+	<label>Prep.</label>
+	<input class="input-mini" type="text" name="<?php echo 'prep_' . $this->seminar_id . "_" . $grader['user_id'];?>" id="<?php echo 'prep_' . $this->seminar_id . "_" . $grader['user_id'];?>" value="<?php echo $prep_value; ?>" />
+	<label>Prof.</label>
+	<input class="input-mini" type="text" name="<?php echo 'prof_' . $this->seminar_id . "_" . $grader['user_id'];?>" id="<?php echo 'prof_' . $this->seminar_id . "_" . $grader['user_id'];?>" value="<?php echo $prof_value; ?>" />
+	<button type="submit" class="btn" class="faculty_grading">Submit</button>
+</form>
+
+<?php endforeach; ?>
+
+

@@ -136,6 +136,128 @@ class Application_Model_SeminarMapper
 		}
 	}
 
+
+	public function saveScores($data)
+	{
+		/*
+		Array
+			(
+				[prep_3_86] => 6
+				[prof_3_86] => 7
+			)
+		*/
+
+		$scoreArray = array();
+		foreach($data as $key => $value) {
+			$keyData = explode('_', $key);
+			$scoreArray['seminar_id'] = $keyData[1];
+			switch($keyData[0]) {
+				case 'prep':
+					$scoreArray[$keyData[0]] = $value;
+					break;
+				case 'prof':
+					$scoreArray[$keyData[0]] = $value;
+					break;			
+			}
+			$scoreArray['grader_user_id'] = $keyData[2];
+		}
+		$scoreArray['presenter_user_section_id'] = $data['presenter_user_section_id'];
+
+		$table = new Application_Model_DbTable_Scores();
+		$select = $table->select()
+			->where('seminar_id = ?', $scoreArray['seminar_id'])
+			->where('grader_user_id = ?', $scoreArray['grader_user_id']);
+			
+		$row = $table->fetchRow($select);
+		if(empty($row)) {
+			$newRow = $table->createRow();
+			$newRow->seminar_id= $scoreArray['seminar_id'];
+			$newRow->prep = $scoreArray['prep'];
+			$newRow->prof = $scoreArray['prof'];
+			$newRow->grader_user_id = $scoreArray['grader_user_id'];
+			$newRow->save();
+		} else {
+			$row->prep = $scoreArray['prep'];
+			$row->prof = $scoreArray['prof'];
+			$row->save();
+		}
+
+		$averageScoreArray = $this->getFacultyScoreAverages($scoreArray['seminar_id']);
+		$averageScoreArray['grader_user_id'] = $scoreArray['grader_user_id'];
+		$averageScoreArray['presenter_user_section_id'] = $scoreArray['presenter_user_section_id'];
+		return $averageScoreArray;	
+	}
+
+	public function getFacultyScoreAverages($seminarId)
+	{
+		$table = new Application_Model_DbTable_Scores();
+		$rows = $table->fetchAll(
+			$table->select()->where('seminar_id = ?', $seminarId)
+		);
+		$rowArray = $rows->toArray();
+		
+		$averages = $this->averageScores($rowArray);
+
+		$averageScoreArray = array(
+			'seminar_id' => $seminarId,
+			'prepAvg' => $averages['prepAvg'],
+			'profAvg' => $averages['profAvg'],
+		);
+
+		return $averageScoreArray;
+	}
+
+	public function averageScores($rowArray)
+	{
+		$prep = 0;
+		$prof = 0;
+		foreach($rowArray as $row) {
+			$prep += $row['prep'];
+			$prof += $row['prof'];	
+		}
+		$prepAvg = $prep/2;
+		$profAvg = $prof/2;
+		
+		$averages = array(
+			'prepAvg' => $prepAvg,
+			'profAvg' => $profAvg
+		);
+
+		return $averages;
+	}
+
+	public function getSeminarScores($seminarId)
+	{
+		$table = new Application_Model_DbTable_Scores();
+		$rows = $table->fetchAll(
+				$table->select()->where('seminar_id = ?', $seminarId)
+				);
+		
+		if(!empty($rows)) {
+			$rowArray = $rows->toArray();
+
+			$graderScores = array();
+			foreach($rowArray as $row) {
+				$graderScores[$row['grader_user_id']] = array(
+					'grader_user_id' => $row['grader_user_id'],
+					'prep' => $row['prep'],
+					'prof' => $row['prof']
+				);
+			}
+
+			$averages = $this->averageScores($rowArray);
+			$scoreArray = array(
+				'seminar_id' => $seminarId,
+				'prepAvg' => $averages['prepAvg'],
+				'profAvg' => $averages['profAvg'],
+				'graderScores' => $graderScores
+			);
+			return $scoreArray;
+		} else {
+			return false;
+		}
+	}
+
 	
 }
 
