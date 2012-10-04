@@ -14,6 +14,10 @@ $graders = $userMapper->getFacultyByPYearSectionId(
 
 ?>
 
+<?php if(empty($graders)): ?>
+<p>No faculty graders assigned.</p>
+<?php else: ?>
+
 <?php foreach($graders as $grader): ?>
 <?php 
 $prep_value = 0;
@@ -36,4 +40,4 @@ if(!empty($this->scores['graderScores'][$grader['user_id']])) {
 
 <?php endforeach; ?>
 
-
+<?php endif; ?>

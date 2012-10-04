@@ -10,21 +10,18 @@ $role_id = $this->role_id;
 		<thead>
 			<tr>
 				<th scope="col" colspan="2">Reviewer</th>
-				<th scope="col" colspan="10">Survey Data</th>
+				<th scope="col" colspan="10">Survey Data Averages</th>
 			</tr>
 			<tr>
 				<th scope="col">Name</th>
-				<th scope="col">unid</th>
-				<th scope="col" colspan="5">Presentation Style</th>
-				<th scope="col" colspan="5">Instructional Materials</th>
-				<th scope="col" colspan="6">Overall Presentation</th>
-				<th scope="col" colspan="7">Clinical Data</th>
-				<th scope="col" colspan="5">Conclusions</th>
-				<th scope="col" colspan="3">Q &amp; A</th>
-				<th scope="col" colspan="6">Overall Knowledge</th>
-				<th scope="col">Liked</th>
-				<th scope="col">Needs Improvement</th>
-				<th scope="col">General</th>
+				<th scope="col">Unid</th>
+				<th scope="col">Pres.</br>Style</th>
+				<th scope="col">Inst.</br>Materials</th>
+				<th scope="col">Overall</br>Pres.</th>
+				<th scope="col">Clinical</br>Data</th>
+				<th scope="col">Conc.</th>
+				<th scope="col">Q&amp;A</th>
+				<th scope="col">Overall</br>Knowledge</th>
 			</tr>	
 		</thead>
 		<tfoot>
@@ -33,78 +30,21 @@ $role_id = $this->role_id;
 		</tfoot>
 		<tbody>
 			<?php foreach($surveys as $survey): ?>
+			<?php //Zend_Debug::dump($survey); ?>
 			<?php if($survey['reviewer']['role_id'] == $role_id): ?>
 			<tr>
-				<td><?php echo $survey['reviewer']['last_name'] . ', ' . $survey['reviewer']['first_name']; ?></td>
+				<td>
+				<script type="text/Javascript">
+					var survey<?php echo $survey['id']?> = <?php echo json_encode($survey); ?>;
+				</script>
+				<a href="#" id="<?php echo $survey['id']?>" class="survey-row" style="color: blue;"><?php echo $survey['reviewer']['last_name'] . ', ' . $survey['reviewer']['first_name']; ?></a></td>
 				<td><?php echo $survey['reviewer']['unid']; ?></td>
-				<?php foreach($survey as $key => $value): ?>
-				<?php if(in_array($key, array('id', 'seminar_id', 'reviewer_user_section_id','survey_date', 'qualtrics_is', 'grade_sum','grade_weighted_average','grade_standard_deviation', 'updated', 'reviewer'))): ?>
-					<?php continue; ?>
-				<?php endif; ?>
-					<?php if(strstr($key, 'ps_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
 
-					<?php if(strstr($key, 'im_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
 
-					<?php if(strstr($key, 'op_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
-
-					<?php if(strstr($key, 'cd_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
-
-					<?php if(strstr($key, 'cc_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
-
-					<?php if(strstr($key, 'qa_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
-
-					<?php if(strstr($key, 'ok_')): ?>
-						<?php if(strstr($key, '_comments')): ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>
-						<?php else: ?>
-						<td><?php echo $survey[$key]; ?></td>	
-						<?php endif;?>	
-					<?php endif;?>
-
-					<?php if(strstr($key, 'comments_')): ?>
-						<?php if(($role_id == 3) && in_array($key, array('comment_like','comment_improve'))): ?>
-							<?php exit; ?>
-						<?php endif; ?>
-						<td><div class="comment more"><?php echo $survey[$key]; ?></div></td>	
-					<?php endif;?>
-
+				<?php foreach($this->surveyAverages()->averageOne($survey) as $field): ?>
+				<td><?php echo $field['average']; ?></td>
 				<?php endforeach; ?>
+
 			</tr>
 				<?php endif; ?>
 			<?php endforeach; ?>

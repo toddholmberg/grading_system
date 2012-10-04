@@ -63,7 +63,7 @@ class Application_Form_CreateUser extends Zend_Form
 		$submit = new Zend_Form_Element_Submit('submit');
 		$submit->setLabel('Save');
 
-		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $archive, $user_id, $submit));
+		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $submit));
 
 	}
 }

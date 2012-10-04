@@ -1,0 +1,8 @@
+<?php
+$survey = $this->data['survey_data'];
+
+//Zend_Debug::dump($survey);
+?>
+<h4><?php echo $survey['reviewer']['last_name'] . ', ' . $survey['reviewer']['first_name']; ?> - <?php echo $survey['reviewer']['unid']; ?></h4>
+
+<?php echo $this->surveyDetail()->format($survey); ?>

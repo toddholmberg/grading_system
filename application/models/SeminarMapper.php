@@ -46,7 +46,6 @@ class Application_Model_SeminarMapper
 		}
 	}
 
-
 	public function insert($seminarData)
 	{
 		try {
@@ -257,7 +256,6 @@ class Application_Model_SeminarMapper
 			return false;
 		}
 	}
-
 	
 }
 

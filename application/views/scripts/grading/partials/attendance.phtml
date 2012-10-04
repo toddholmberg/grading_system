@@ -1,4 +1,24 @@
-<h2>Attendance</h2>
-<p>presenter_user_section_id: <?php echo $this->presenter_user_section_id; ?></p>
-<p>This student has reviewed the following seminars:</p>
+<?php
+$seminarData = $this->attendance()->dates(($this->presenter_user_section_id));
+?>
+
+<?php if(empty($seminarData)): ?>
+	<p>This student has not reviewed any seminars.</p>
+<?php else: ?>
+	<p>This student has reviewed the following seminars:</p>
+	<table class="table table-bordered span6">
+		<tr><th class="span1">Count</th><th>Date</th><th>Presenter</th></tr>
+		<tr>
+		<?php
+		$count = 0;
+		foreach($seminarData as $seminar) {
+			echo "<td>" . ++$count . "</td>";
+			echo "<td>" . date('m/d/Y', strtotime($seminar['date']))  . "</td>";
+			echo "<td>" . $seminar['last_name'] . ', ' . $seminar['first_name']  . "</td>";
+		}
+		?>
+		</tr>
+	</table>
+<?php endif; ?>
+
 

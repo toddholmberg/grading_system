@@ -2,7 +2,64 @@
 
 class Zend_View_Helper_SurveyAverages extends Zend_View_Helper_Abstract
 {
-	public function surveyAverages($surveys, $role_id)
+	public function surveyAverages()
+	{
+		return $this;
+	}
+
+	
+	public function averageOne($survey)
+	{
+		$averages = $this->_averageArray();
+
+		foreach($survey as $key => $value) {
+			if((strpos($key, 'ps_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['ps']['count']++;
+				$averages['ps']['total'] += $value;
+			}
+
+			if((strpos($key, 'im_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['im']['count']++;
+				$averages['im']['total'] += $value;
+			}	
+
+			if((strpos($key, 'op_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['op']['count']++;
+				$averages['op']['total'] += $value;
+			}
+
+			if((strpos($key, 'cd_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['cd']['count']++;
+				$averages['cd']['total'] += $value;
+			}
+
+
+			if((strpos($key, 'cc_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['cc']['count']++;
+				$averages['cc']['total'] += $value;
+			}
+
+
+			if((strpos($key, 'qa_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['qa']['count']++;
+				$averages['qa']['total'] += $value;
+			}
+
+
+			if((strpos($key, 'ok_') === 0) && !(strpos($key, 'comments') > 0)){
+				$averages['ok']['count']++;
+				$averages['ok']['total'] += $value;
+			}
+
+		}
+
+		$averages = $this->_calculateAverages($averages);
+
+		return $averages;
+	}
+
+
+	public function averageAll($surveys, $role_id)
 	{
 		$averages = $this->_averageArray();
 		foreach($surveys as $survey) {
@@ -62,7 +119,7 @@ class Zend_View_Helper_SurveyAverages extends Zend_View_Helper_Abstract
 		foreach($averages as $field => $data){
 			// only calculate if count != 0
 			if($data['count'] != 0) {
-				$averages[$field]['average'] = round(($data['total']/$data['count']), 3);
+				$averages[$field]['average'] = round(($data['total']/$data['count']), 2);
 			} else {
 				$averages[$field]['average'] = 0;
 			}

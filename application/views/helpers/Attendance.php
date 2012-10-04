@@ -7,15 +7,16 @@ class Zend_View_Helper_Attendance extends Zend_View_Helper_Abstract
 		return $this;		
 	}
 
-	public function attended($presenterUserSectionId)
+	public function dates($presenterUserSectionId)
 	{
 		try{
 			$db = Zend_Db_Table::getDefaultAdapter();
-			$sql = 'SELECT count(id) FROM survey WHERE reviewer_user_section_id = :presenterUserSectionId';
+			$sql = 'SELECT seminar.date, user.last_name, user.first_name FROM survey LEFT JOIN seminar ON survey.seminar_id = seminar.id LEFT JOIN user__section us ON us.id = seminar.presenter_user_section_id LEFT JOIN user ON us.user_id = user.id WHERE survey.reviewer_user_section_id = :presenterUserSectionId';
 			$sth = $db->prepare($sql);
 			$sth->bindParam(':presenterUserSectionId', $presenterUserSectionId);
 			if($sth->execute()) {
-				return $sth->rowCount();
+				$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+				return $results;
 			} else {
 				echo Zend_Debug::dump($this->errorInfo());
 			}	

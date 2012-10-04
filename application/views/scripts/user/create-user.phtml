@@ -10,7 +10,7 @@ if(isset($this->message->error)) {
 
 <h1>Create User</h1>
 <p>
-<?php echo $message; ?>
+<?php if(isset($message)) { echo $message; } ?>
 </p>
 
 <?php
