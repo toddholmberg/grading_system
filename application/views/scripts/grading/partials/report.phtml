@@ -1,15 +1,3 @@
-<?php
-
-//$studentSurveyHtml = $this->partial('grading/partials/surveys.phtml', array('surveys' => $this->surveys, 'role_id' => 3));
-//$facultySurveyHtml = $this->partial('grading/partials/surveys.phtml', array('surveys' => $this->surveys, 'role_id' => 2));
-
-//$all = $studentSurveyHtml . $facultySurveyHtml;
-/*
-foreach($this->surveys as $survey) {
-	$all .= $this->surveyDetail()->format($survey);
-}
-*/
-?>
 <script type="text/Javascript">
 var report<?php echo $this->presenter_user_section_id; ?> = <?php echo json_encode($this->data); ?>;
 </script>
@@ -18,6 +6,5 @@ var report<?php echo $this->presenter_user_section_id; ?> = <?php echo json_enco
 <button id="<?php echo $this->presenter_user_section_id; ?>" class="btn btn-primary report" type="button">Generate Report</button>
 </p>
 
-<p id="reportUrl<?php echo $this->presenter_user_section_id; ?>">
-
+<p id="reportUrl<?php echo $this->presenter_user_section_id; ?>" class="reportUrl">
 </p>

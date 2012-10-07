@@ -58,9 +58,16 @@ class GradingController extends Zend_Controller_Action
 		// disable view
 		$this->_helper->layout->disableLayout();
 		$this->_helper->viewRenderer->setNoRender();
-		$this->view->data = $this->_request->getPost();
-	}
 
+		$request = Zend_Controller_Front::getInstance()->getRequest();
+        $this->params = $request->getParams();
+
+		//Zend_Debug::dump($this->params);
+		$location = APPLICATION_PATH . '/../library/reports/' . $this->params['filename'];
+		header('Content-Type: application/pdf');
+		header('Content-Disposition: attachment; filename="' . $this->params['filename']  . '"');
+		readfile($location);
+	}
 
 }
 

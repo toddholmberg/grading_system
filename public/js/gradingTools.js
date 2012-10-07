@@ -95,10 +95,14 @@ $(function($) {
 	});
 
 	// generate report and insert download link
-	$('.report').click(function(data){
+	// allow one click on button per page load
+	$('.report').one('click', function(data){
+		$(this).addClass('disabled');
 		var reportId = $(this).attr('id');
 		var reportData = eval('report' + reportId);
 		var reportUrlBlock = '#reportUrl' + reportId;
+		var spinner = $('<img/>').attr('src', '/img/progress.gif');
+		$(reportUrlBlock).html(spinner);
 		$.post(
 			'grading/report',
 			{
