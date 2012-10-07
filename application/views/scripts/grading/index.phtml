@@ -48,128 +48,132 @@ a.morelink {
 }
 </style>
 
-<div class="container-fluid">
-	<div class="row-fluid span12">
-
+<div class="container">
+	<div class="row-fluid span9">
 		<?php echo $this->partial('grading/partials/sectionNav.phtml', array('p_year_id' => $this->p_year_id, 'section_id' => $this->section_id)); ?>
-
 	</div><!-- end row-fluid span12 -->
-	<div class="row-fluid span12">
+	<div class="row span9">
 		<h3><?php echo "Year: P$pyear <br/>Section: $section"; ?></h3>
 	</div><!-- end row-fluid span12 -->
 
 
 
 <?php foreach($seminars as $data): ?>
-	<div class="row-fluid span12">
+
+	<!-- BEGIN seminar -->
+	<div class="span9">
 	
 	<?php if(!empty($data['surveys'])): ?>		
+		<?php
+		$facultyAverages = $this->surveyAverages()->averageAll($data['surveys'], 3);
+		$studentAverages = $this->surveyAverages()->averageAll($data['surveys'], 2);
+		//$attendanceScore = round(($this->attendance()->score($data['presenter_user_section_id']) * 100)/12, 2);
+		// DEBUG: set attendance to 100 for final score validation
+		$attendanceScore = round((12 * 100)/12, 2);
+		$finalScore = $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']);
+		?>
+		<!-- BEGIN presenter_details -->
+		<table  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-condensed">
+			<caption></caption>
+			<colgroup />
+			<colgroup span="2" title="title" />
+			<thead>
+				<tr>
+					<th scope="col" colspan="2">Presenter</th>
+					<th scope="col" colspan="7">Student Survey Data Averages</th>
+					<th scope="col" colspan="7">Faculty Survey Data Averages</th>
+					<th scope="col" colspan="4">Final Scores</th>
+				</tr>
+				<tr>
+					<th scope="col">Name</th>
+					<th scope="col">Unid</th>
+					<th scope="col">Pres.</br>Style</th>
+					<th scope="col">Inst.</br>Materials</th>
+					<th scope="col">Overall</br>Pres.</th>
+					<th scope="col">Clinical</br>Data</th>
+					<th scope="col">Conc.</th>
+					<th scope="col">Q&amp;A</th>
+					<th scope="col">Overall</br>Knowledge</th>
+					<th scope="col">Pres.</br>Style</th>
+					<th scope="col">Inst.</br>Materials</th>
+					<th scope="col">Overall</br>Pres.</th>
+					<th scope="col">Clinical</br>Data</th>
+					<th scope="col">Conc.</th>
+					<th scope="col">Q&amp;A</th>
+					<th scope="col">Overall</br>Know.</th>
+					<th scope="col">Prep.</th>
+					<th scope="col">Prof.</th>
+					<th scope="col">Att.</th>
+					<th scope="col">Total</th>
+				</tr>	
+			</thead>
+			<tfoot>
+				<tr>
+					
+				</tr>
+			</tfoot>
+			<tbody>		
+				<tr class="success">
+					<td><?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name']; ?></td>
+					<td><?php echo $data['presenter_unid']; ?></td>
+					<?php foreach($studentAverages as $field): ?>
+					<td><?php echo $field['average']; ?></td>
+					<?php endforeach; ?>
 
-<!-- BEGIN presenter_details -->
-	<table  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-condensed" id="surveys">
-		<caption></caption>
-		<colgroup />
-		<colgroup span="2" title="title" />
-		<thead>
-			<tr>
-				<th scope="col" colspan="2">Presenter</th>
-				<th scope="col" colspan="7">Student Survey Data Averages</th>
-				<th scope="col" colspan="7">Faculty Survey Data Averages</th>
-				<th scope="col" colspan="4">Final Scores</th>
-			</tr>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Unid</th>
-				<th scope="col">Pres.</br>Style</th>
-				<th scope="col">Inst.</br>Materials</th>
-				<th scope="col">Overall</br>Pres.</th>
-				<th scope="col">Clinical</br>Data</th>
-				<th scope="col">Conc.</th>
-				<th scope="col">Q&amp;A</th>
-				<th scope="col">Overall</br>Knowledge</th>
-				<th scope="col">Pres.</br>Style</th>
-				<th scope="col">Inst.</br>Materials</th>
-				<th scope="col">Overall</br>Pres.</th>
-				<th scope="col">Clinical</br>Data</th>
-				<th scope="col">Conc.</th>
-				<th scope="col">Q&amp;A</th>
-				<th scope="col">Overall</br>Know.</th>
-				<th scope="col">Prep.</th>
-				<th scope="col">Prof.</th>
-				<th scope="col">Att.</th>
-				<th scope="col">Total</th>
-			</tr>	
-		</thead>
-		<tfoot>
-			<tr>
-				
-			</tr>
-		</tfoot>
-		<tbody>		
-			<tr>
-				<td><?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name']; ?></td>
-				<td><?php echo $data['presenter_unid']; ?></td>
-				<?php foreach($this->surveyAverages()->averageAll($data['surveys'], 2) as $field): ?>
-				<td><?php echo $field['average']; ?></td>
-				<?php endforeach; ?>
+					<?php foreach($facultyAverages as $field): ?>
+					<td><?php echo $field['average']; ?></td>
+					<?php endforeach; ?>
 
-				<?php foreach($this->surveyAverages()->averageAll($data['surveys'], 3) as $field): ?>
-				<td><?php echo $field['average']; ?></td>
-				<?php endforeach; ?>
+					<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
+					<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
+					<td><?php echo $attendanceScore; ?></td>
+					<td><?php echo $finalScore; ?></td>
+				</tr>
+			</tbody>
+		</table><!-- END presenter_details -->
 
-				<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
-				<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
-				<td><?php echo $this->attendance()->score($data['presenter_user_section_id']); ?></td>
-				<td></td>
-			</tr>
-		</tbody>
-	</table><!-- END presenter_details -->
+	<div class="surveys">
 
-<div class="surveys">
+		<div class="tabs">
+			<ul>
+				<li><a href="#seminar_scoring_<?php echo $data['seminar_id']; ?>">Faculty Score Entry</a></li>
+				<li><a href="#seminar_attendance_<?php echo $data['seminar_id']; ?>">Attendance</a></li>
+				<li><a href="#seminar_faculty_<?php echo $data['seminar_id']; ?>">Faculty Surveys</a></li>
+				<li><a href="#seminar_students_<?php echo $data['seminar_id']; ?>">Students Surveys</a></li>
+				<li><a href="#seminar_report_<?php echo $data['seminar_id']; ?>">Report</a></li>
+			</ul>
 
-<a href="#" class="survey-trigger">Show survey details</a>
+			<div class="tab-table" id="seminar_scoring_<?php echo $data['seminar_id']; ?>">
+				<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section, 'seminar_id' => $data['seminar_id'], 'presenter_user_section_id' => $data['presenter_user_section_id'], 'scores' => $data['scores'])); ?>
+			</div>
+			<div class="tab-table" id="seminar_faculty_<?php echo $data['seminar_id']; ?>">
+				<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
+			</div>
+			<div class="tab-table" id="seminar_students_<?php echo $data['seminar_id']; ?>">
+				<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2)); ?>
+			</div>
+			<div class="tab-table" id="seminar_attendance_<?php echo $data['seminar_id']; ?>">
+				<?php echo $this->partial('grading/partials/attendance.phtml', array('p_year_id' => $this->p_year_id, 'section_id' => $this->section_id, 'presenter_user_section_id' => $data['presenter_user_section_id'])); ?>
+			</div>
+			<div class="tab-table" id="seminar_report_<?php echo $data['seminar_id']; ?>">
+				<?php echo $this->partial('grading/partials/report.phtml', array('data' => $data, 'presenter_user_section_id' => $data['presenter_user_section_id'])); ?>
+			</div>
 
-<div class="survey-elements">
+		</div><!-- End tabs -->
 
-<div class="tabs">
-	<ul>
-		<li><a href="#seminar_scoring_<?php echo $data['seminar_id']; ?>">Faculty Score Entry</a></li>
-		<li><a href="#seminar_attendance_<?php echo $data['seminar_id']; ?>">Attendance</a></li>
-		<li><a href="#seminar_faculty_<?php echo $data['seminar_id']; ?>">Faculty Surveys</a></li>
-		<li><a href="#seminar_students_<?php echo $data['seminar_id']; ?>">Students Surveys</a></li>
-	</ul>
+	</div><!-- End surveys -->
 
-	<div class="tab-table" id="seminar_scoring_<?php echo $data['seminar_id']; ?>">
-		<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section, 'seminar_id' => $data['seminar_id'], 'presenter_user_section_id' => $data['presenter_user_section_id'], 'scores' => $data['scores'])); ?>
-	</div>
-	<div class="tab-table" id="seminar_faculty_<?php echo $data['seminar_id']; ?>">
-		<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
-	</div>
-	<div class="tab-table" id="seminar_students_<?php echo $data['seminar_id']; ?>">
-		<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2)); ?>
-	</div>
-	<div class="tab-table" id="seminar_attendance_<?php echo $data['seminar_id']; ?>">
-		<?php echo $this->partial('grading/partials/attendance.phtml', array('p_year_id' => $this->p_year_id, 'section_id' => $this->section_id, 'presenter_user_section_id' => $data['presenter_user_section_id'])); ?>
-	</div>
-
-</div>
-
-</div><!-- End survey-elements -->
-
-</div><!-- End surveys -->
-
-</div> <!-- end container-fluid -->
-
-	
 	<?php else: ?>
 		<h4 "span2">
 		<?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name'] . '(' . $data['presenter_user_id']  . ') - ' . $data['presenter_unid'] . ' - ' . $data['seminar_date']; ?>
 		</h4>	
 		<p>No surveys recorded for this seminar</p>
 	<?php endif; ?>
-	</div> <!-- end row-fluid span12 -->
+	<br/>
+	</div> <!-- End seminar -->
 <?php endforeach; ?>
 
+</div> <!-- end container-fluid -->
 
 <?php 
 

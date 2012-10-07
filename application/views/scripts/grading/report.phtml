@@ -1,0 +1,23 @@
+<?php
+$data = $this->data['report_data'];
+
+$header = '<h3>' . $data['presenter_last_name'] . ', ' . $data['presenter_first_name'] . '</h3>';
+$header .= '<h4>Seminar Date: ' . $data['seminar_date'] . '</h4>';
+$studentSurveyHtml = $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3));
+$facultySurveyHtml = $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2));
+
+$all = $header . $studentSurveyHtml . $facultySurveyHtml;
+
+$filename = sprintf("%s_%s_%s.pdf", trim($data['presenter_last_name']), trim($data['presenter_first_name']), trim($data['seminar_date']));
+
+foreach($data['surveys'] as $survey) {
+	$all .= $this->surveyDetail()->format($survey);
+}
+
+
+?>
+
+<?php
+$this->PDF($all, $filename);
+exit;
+?>

@@ -85,24 +85,30 @@ class UserController extends Zend_Controller_Action
 		$form = new Application_Form_EditUser();
 		$userId = $this->getRequest()->getParam('user_id');
 
-
 		if (isset($userId)) {
 
 			if ($this->_request->isPost()) {
+				try{
 
-				$formData = $this->_request->getPost();
+					$formData = $this->_request->getPost();
 
-				if ($form->isValid($formData)) {
+					if ($form->isValid($formData)) {
 
-					$userMapper = new Application_Model_UserMapper();
-					$updateUser = $userMapper->save($formData);
+						$userMapper = new Application_Model_UserMapper();
+						$updateUser = $userMapper->save($formData);
+						if(isset($updateUser['error']['message'])) {
+							throw new Exception($updateUser['error']['message']);
+						} else {
+							$this->view->updatedUser = $userMapper->find($updateUser['id']);
+							$this->view->message = 'success';
+						}
 
-					$this->view->updatedUser = $userMapper->find($updateUser['id']);
-					$this->view->message = 'success';
-	
-				} else {
+					} else {
 
-					$form->populate($formData);
+						$form->populate($formData);
+					}
+				} catch (Exception $e) {
+					$this->view->error = $e;
 				}
 			} else {
 				try{
@@ -111,7 +117,7 @@ class UserController extends Zend_Controller_Action
 					$form->populate($user);
 
 				} catch (Exception $e) {
-					$this->view->message->error = $e;
+					$this->view->error = $e;
 				}
 			}
 		}

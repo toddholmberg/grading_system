@@ -87,17 +87,21 @@ class Application_Model_SeminarMapper
 
 	public function findByDateAndUserSectionId($date, $userSectionId)
 	{
-		$table = $this->getDbTable();
-		$select = $table->select()
-			->where('date = ?', $date)
-			->where('presenter_user_section_id = ?', $userSectionId);
-		$row = $table->fetchRow($select);
+		try{
+			$table = $this->getDbTable();
+			$select = $table->select()
+				->where('date = ?', $date)
+				->where('presenter_user_section_id = ?', $userSectionId);
+			$row = $table->fetchRow($select);
 
-		if (!empty($row)) {
-			return $row;
-		} else {
-			return false;
-		}
+			if (!empty($row)) {
+				return $row;
+			} else {
+				return false;
+			}
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
+		}	
 	}
 
 	public function fetchAll()

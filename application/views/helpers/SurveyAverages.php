@@ -134,31 +134,38 @@ class Zend_View_Helper_SurveyAverages extends Zend_View_Helper_Abstract
 
 			'ps' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.05
 			),
 			'im' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.1
 			),
 			'op' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.1
 			),
 			'cd' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.2
 			),
 			'cc' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.2
 			),
 			'qa' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.15
 			),
 			'ok' => array(
 				'total' => 0,
-				'count' => 0
+				'count' => 0,
+				'weight' => 0.2
 			)
 		
 		);

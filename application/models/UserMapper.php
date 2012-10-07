@@ -202,11 +202,13 @@ class Application_Model_UserMapper
 			$sectionMapper = new Application_Model_SectionMapper();
 			$section = $sectionMapper->getUserCurrentSectionMapId($user_id, $currentAcademicYear['id']);
 
-			$user['p_year'] = $section['p_year_id'];
-			$user['section'] = $section['section_id'];
-	
-			$userSectionData = $sectionMapper->getUserSectionData($user_id);
-			$user['is_grader'] = $userSectionData['is_grader'];
+			if(!empty($section)) {
+				$user['p_year'] = $section['p_year_id'];
+				$user['section'] = $section['section_id'];
+		
+				$userSectionData = $sectionMapper->getUserSectionData($user_id);
+				$user['is_grader'] = $userSectionData['is_grader'];
+			}
 		
 			return $user;
 		} catch(Exception $e) {

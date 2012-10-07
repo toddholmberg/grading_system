@@ -132,11 +132,13 @@ class Application_Model_SurveyMapper
 				'seminarDate' => $params["seminarDate$i"] 
 			);
 		}
+		//Zend_Debug::dump($prelimPresenters);
 
 		$presenters = array();
 		
 		foreach($prelimPresenters as $index => $params) {
 			$seminarData = $this->getSeminarData($params['unid'], $params['seminarDate']);
+		//Zend_Debug::dump($seminarData);
 
 			$presenter['seminarId'] = $seminarData['id'];
 			$presenter['unid'] = $params['unid'];
@@ -146,12 +148,13 @@ class Application_Model_SurveyMapper
 
 			$presenters[$index] = $presenter;
 		}
-
+		//Zend_Debug::dump($presenters);
 		return $presenters;
 	}
 
 	public function getSeminarData($unid, $seminarDate){
 		try {
+			//Zend_Debug::dump(array($unid, $seminarDate));
 
 			$userMapper = new Application_Model_UserMapper();
 			$sectionMapper = new Application_Model_SectionMapper();
@@ -162,6 +165,7 @@ class Application_Model_SurveyMapper
 			$userSectionData= $sectionMapper->getUserSectionData($user['id'])->toArray();
 
 			$seminar = $seminarMapper->findByDateAndUserSectionId($seminarDate, $userSectionData['id']);	
+			//Zend_Debug::dump($seminar);
 
 			if(empty($seminar)) {
 				$newSeminar = $seminarMapper->save(array(
@@ -169,9 +173,11 @@ class Application_Model_SurveyMapper
 					'userSectionId' => $userSectionData['id']
 				));
 				if (isset($newSeminar)) {
+					
 					$newSeminarArray = $newSeminar->toArray();
 					$seminarData = $newSeminarArray[0];
 				}
+				//Zend_Debug::dump($seminarData);
 
 			} else {
 				$seminarData = $seminar->toArray();
@@ -182,7 +188,8 @@ class Application_Model_SurveyMapper
 				return $seminarData;
 			}
 		} catch (Exception $e) {
-			throw new Exception("surveyMapper::getSeminarData" . $e->getMessage());
+			echo "surveyMapper::getSeminarData" . $e->getMessage();  
+			//throw new Exception("surveyMapper::getSeminarData" . $e->getMessage());
 		}
 	}	
 

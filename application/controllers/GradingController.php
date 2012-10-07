@@ -20,7 +20,7 @@ class GradingController extends Zend_Controller_Action
 			$this->view->section_id = 1;
 		}
 
-	}
+    }
 
     public function saveScoresAction()
     {
@@ -42,10 +42,31 @@ class GradingController extends Zend_Controller_Action
 	    $this->view->data = $this->_request->getPost();
 		//echo $this->view->formatSurveyDetail($data);
 		echo $this->view->render('grading/format-survey-detail.phtml');
-	     // action body
     }
 
+    public function reportAction()
+    {
+   		// disable view
+		$this->_helper->layout->disableLayout();
+		$this->_helper->viewRenderer->setNoRender();
+	    $this->view->data = $this->_request->getPost();
+		$this->view->render('grading/report.phtml');
+    }
+
+	public function downloadReportAction()
+	{
+		// disable view
+		$this->_helper->layout->disableLayout();
+		$this->_helper->viewRenderer->setNoRender();
+		$this->view->data = $this->_request->getPost();
+	}
+
+
 }
+
+
+
+
 
 
 

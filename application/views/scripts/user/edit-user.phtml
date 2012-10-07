@@ -1,5 +1,5 @@
 <?php
-if(isset($this->message->error)) {
+if(isset($this->error)) {
 	$message = 'An error occurred while updating your user:<br/>' . $this->error->getMessage();
 } elseif($this->message == 'success') {
 	$message = 'User sucessfully edited.';
@@ -11,7 +11,7 @@ if(isset($this->message->error)) {
 <h1>Edit User</h1>
 <?php if(isset($message)): ?>
 <p>
-<?php echo $message; ?>
+<?php if(isset($message)) { echo $message; } ?>
 </p>
 <?php endif; ?>
 

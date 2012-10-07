@@ -77,6 +77,7 @@ $(function($) {
 		e.preventDefault();
 	});	
 
+
 	// survey detail
 	$('.survey-row').click(function(){
 		var surveyData = eval('survey' + $(this).attr('id'));
@@ -92,6 +93,25 @@ $(function($) {
 		);
 		return false;
 	});
+
+	// generate report and insert download link
+	$('.report').click(function(data){
+		var reportId = $(this).attr('id');
+		var reportData = eval('report' + reportId);
+		var reportUrlBlock = '#reportUrl' + reportId;
+		$.post(
+			'grading/report',
+			{
+				report_data: reportData
+			},
+			function(url) {
+				var reportLink = $('<a></a>').html('Download report').attr('href', url);	
+				$(reportUrlBlock).html(reportLink);	
+			}
+		);
+		return false;
+	});
+
 
 	// more/less functionality
 	var showChar = 50;

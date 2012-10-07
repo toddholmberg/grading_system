@@ -35,6 +35,8 @@
           <actionMethod actionName="saveScores"/>
           <actionMethod actionName="formatSurveyDetail"/>
           <actionMethod actionName="sectionFilter"/>
+          <actionMethod actionName="report"/>
+          <actionMethod actionName="downloadReport"/>
         </controllerFile>
         <controllerFile controllerName="Upload">
           <actionMethod actionName="index"/>
@@ -146,6 +148,15 @@
           </viewControllerScriptsDirectory>
           <viewControllerScriptsDirectory forControllerName="Grading">
             <viewScriptFile forActionName="sectionFilter"/>
+          </viewControllerScriptsDirectory>
+          <viewControllerScriptsDirectory forControllerName="Grading">
+            <viewScriptFile forActionName="report"/>
+          </viewControllerScriptsDirectory>
+          <viewControllerScriptsDirectory forControllerName="Grading">
+            <viewScriptFile forActionName="report"/>
+          </viewControllerScriptsDirectory>
+          <viewControllerScriptsDirectory forControllerName="Grading">
+            <viewScriptFile forActionName="downloadReport"/>
           </viewControllerScriptsDirectory>
         </viewScriptsDirectory>
         <viewHelpersDirectory/>
