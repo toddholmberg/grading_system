@@ -1,0 +1,22 @@
+<h4>Reviewer <?php echo $this->count + 1; ?></h4>
+<?php foreach($this->questions as $qPrefix => $qText): ?>
+<?php $qValues = $this->categories; ?>
+<table class="surveyDetails" style="page-break-inside:avoid; border-collapse: collapse; border: 1px solid #ccc;" autosize="1.6">
+	<thead>
+		<tr>
+			<th colspan="2" style="text-align: left;"><?php echo $qText['title']; ?></th>
+		</tr>	
+	</thead>
+	<tbody>		
+		<?php for ($i = 0; $i < count($qText['questions']); $i++): ?>
+			<?php if(!empty($qValues[$qPrefix][$i])): ?>
+				<tr>
+					<td style="width: 10cm; border: 1px solid #ccc; vertical-align: top;"><?php echo $qText['questions'][$i]; ?></td>
+					<td style="width: 10cm; border: 1px solid #ccc; vartical-align: top;"><?php echo $qValues[$qPrefix][$i]; ?></td>
+				</tr>
+			<?php endif; ?>
+		<?php endfor; ?>
+	</tbody>
+</table>
+<br/>
+<?php endforeach; ?>

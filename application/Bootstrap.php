@@ -4,6 +4,12 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
 	private $_view;
 
+	protected function _initSession()
+	{
+		Zend_Session::start();
+		Zend_Session::setOptions( array('strict'=>true) );
+	}
+
 	protected function _initDoctype()
 	{
 		$this->bootstrap('view');

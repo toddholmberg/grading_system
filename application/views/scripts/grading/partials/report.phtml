@@ -1,10 +1,6 @@
-<script type="text/Javascript">
-var report<?php echo $this->presenter_user_section_id; ?> = <?php echo json_encode($this->data); ?>;
-</script>
-
 <p>
-<button id="<?php echo $this->presenter_user_section_id; ?>" class="btn btn-primary report" type="button">Generate Report</button>
+<button id="seminar_<?php echo $this->seminar_id; ?>" class="btn btn-primary report" type="button">Generate Report</button>
 </p>
 
-<p id="reportUrl<?php echo $this->presenter_user_section_id; ?>" class="reportUrl">
+<p id="reportUrl<?php echo $this->seminar_id; ?>" class="reportUrl">
 </p>

@@ -98,15 +98,15 @@ $(function($) {
 	// allow one click on button per page load
 	$('.report').one('click', function(data){
 		$(this).addClass('disabled');
-		var reportId = $(this).attr('id');
-		var reportData = eval('report' + reportId);
-		var reportUrlBlock = '#reportUrl' + reportId;
+		var valArray = $(this).attr('id').split('seminar_');
+		var seminarId = valArray[1];
+		var reportUrlBlock = '#reportUrl' + seminarId;
 		var spinner = $('<img/>').attr('src', '/img/progress.gif');
 		$(reportUrlBlock).html(spinner);
 		$.post(
 			'grading/report',
 			{
-				report_data: reportData
+				seminarId: seminarId 
 			},
 			function(url) {
 				var reportLink = $('<a></a>').html('Download report').attr('href', url);	

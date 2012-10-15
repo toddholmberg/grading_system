@@ -85,6 +85,33 @@ class Application_Model_SeminarMapper
 		}
 	}	
 
+	public function findById($seminarId)
+	{
+		// get current academic year
+		try {
+			$db = Zend_Db_Table::getDefaultAdapter();
+
+			$sql = 'select s.id as seminar_id, s.date as seminar_date, s.presenter_user_section_id, us.user_id as presenter_user_id, user.unid as presenter_unid, user.last_name as presenter_last_name, user.first_name as presenter_first_name from seminar s left join user__section us on s.presenter_user_section_id = us.id left join user on us.user_id = user.id where s.id = :seminarId';
+
+			$sth = $db->prepare($sql);
+
+			$sth->bindParam(':seminarId', $seminarId);
+
+			if($sth->execute()) {
+
+				$result = $sth->fetch(PDO::FETCH_ASSOC);
+				return $result;
+
+			} else {
+				throw new Exception($sth->errorInfo());
+			}
+		} catch(Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+	}
+
+
+
 	public function findByDateAndUserSectionId($date, $userSectionId)
 	{
 		try{

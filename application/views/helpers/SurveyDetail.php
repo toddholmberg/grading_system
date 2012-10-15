@@ -7,6 +7,24 @@ class Zend_View_Helper_SurveyDetail extends Zend_View_Helper_Abstract
 		return $this;
 	}
 
+	public function formatReport($survey, $count)
+	{
+		$questions = $this->questions();
+		$categories = array('ps' => array(), 'im' => array(), 'op' => array(), 'cd' => array(), 'cc' => array(), 'qa' => array(), 'ok' => array(), 'comments' => array());
+		foreach($categories as $k => $v) {
+			foreach($survey as $key => $value) {
+				$arr = explode("_", $key, 2);
+				$field_prefix = $arr[0];
+				if($field_prefix == $k) {
+					$categories[$k][] = $value;
+				}
+			}
+		}	
+		
+		return $this->view->partial('grading/partials/reportSurveyDetails.phtml', array('questions' => $questions, 'categories' => $categories, 'count' => $count));
+	}
+
+
 	public function format($survey)
 	{
 		$questions = $this->questions();

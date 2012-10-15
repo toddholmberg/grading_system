@@ -1,0 +1,46 @@
+<?php
+$surveys = $this->surveys;
+$role_id = $this->role_id;
+?>
+
+<table id="report-survey-averages" border="1">
+		<caption></caption>
+		<thead>
+			<tr>
+				<th scope="col" colspan="2">Reviewer</th>
+				<th scope="col" colspan="10">Survey Data Averages</th>
+			</tr>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Unid</th>
+				<th scope="col">Pres.</br>Style</th>
+				<th scope="col">Inst.</br>Materials</th>
+				<th scope="col">Overall</br>Pres.</th>
+				<th scope="col">Clinical</br>Data</th>
+				<th scope="col">Conc.</th>
+				<th scope="col">Q&amp;A</th>
+				<th scope="col">Overall</br>Knowledge</th>
+			</tr>	
+		</thead>
+		<tbody>
+			<?php foreach($surveys as $survey): ?>
+			<?php //Zend_Debug::dump($survey); ?>
+			<?php if($survey['reviewer']['role_id'] == $role_id): ?>
+			<tr>
+				<td>
+				<script type="text/Javascript">
+					var survey<?php echo $survey['id']?> = <?php echo json_encode($survey); ?>;
+				</script>
+				<a href="#" id="<?php echo $survey['id']?>" class="survey-row" style="color: blue;"><?php echo $survey['reviewer']['last_name'] . ', ' . $survey['reviewer']['first_name']; ?></a></td>
+				<td><?php echo $survey['reviewer']['unid']; ?></td>
+
+
+				<?php foreach($this->surveyAverages()->averageOne($survey) as $field): ?>
+				<td><?php echo $field['average']; ?></td>
+				<?php endforeach; ?>
+
+			</tr>
+				<?php endif; ?>
+			<?php endforeach; ?>
+		</tbody>
+	</table>

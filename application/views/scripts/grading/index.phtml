@@ -151,16 +151,16 @@ a.morelink {
 				<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section, 'seminar_id' => $data['seminar_id'], 'presenter_user_section_id' => $data['presenter_user_section_id'], 'scores' => $data['scores'])); ?>
 			</div>
 			<div class="tab-table" id="seminar_faculty_<?php echo $data['seminar_id']; ?>">
-				<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
+				<?php echo $this->partial('grading/partials/surveySummaries.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
 			</div>
 			<div class="tab-table" id="seminar_students_<?php echo $data['seminar_id']; ?>">
-				<?php echo $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2)); ?>
+				<?php echo $this->partial('grading/partials/surveySummaries.phtml', array('surveys' => $data['surveys'], 'role_id' => 2)); ?>
 			</div>
 			<div class="tab-table" id="seminar_attendance_<?php echo $data['seminar_id']; ?>">
 				<?php echo $this->partial('grading/partials/attendance.phtml', array('p_year_id' => $this->p_year_id, 'section_id' => $this->section_id, 'presenter_user_section_id' => $data['presenter_user_section_id'])); ?>
 			</div>
 			<div class="tab-table" id="seminar_report_<?php echo $data['seminar_id']; ?>">
-				<?php echo $this->partial('grading/partials/report.phtml', array('data' => $data, 'presenter_user_section_id' => $data['presenter_user_section_id'])); ?>
+				<?php echo $this->partial('grading/partials/report.phtml', array('seminar_id' => $data['seminar_id'])); ?>
 			</div>
 
 		</div><!-- End tabs -->

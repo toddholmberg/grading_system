@@ -1,0 +1,41 @@
+<?php
+$surveys = $this->surveys;
+?>
+
+<table style="page-break-inside:avoid; border-collapse: collapse; border: 1px solid #ccc;" autosize="1.6">
+	<caption></caption>
+	<colgroup />
+	<colgroup span="2" title="title" />
+	<thead>
+		<tr>
+			<th scope="col" colspan="1" style="border: none;">&nbsp;</th>
+			<th scope="col" colspan="10">Survey Data Averages</th>
+		</tr>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Pres.</br>Style</th>
+			<th scope="col">Inst.</br>Materials</th>
+			<th scope="col">Overall</br>Pres.</th>
+			<th scope="col">Clinical</br>Data</th>
+			<th scope="col">Conc.</th>
+			<th scope="col">Q&amp;A</th>
+			<th scope="col">Overall</br>Knowledge</th>
+		</tr>	
+	</thead>
+	<tfoot>
+		<tr>
+		</tr>
+	</tfoot>
+	<tbody>
+		<?php for($i = 0; $i < count($surveys); $i++): ?>
+		<tr>
+			<td><?php echo sprintf("Reviewer %d", $i+1); ?></td>
+			<?php foreach($this->surveyAverages()->averageOne($surveys[$i]) as $field): ?>
+			<td><?php echo $field['average']; ?></td>
+			<?php endforeach; ?>
+
+		</tr>
+		<?php endfor; ?>
+	</tbody>
+</table>
+<pagebreak />

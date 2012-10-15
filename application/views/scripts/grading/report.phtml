@@ -1,23 +1,52 @@
 <?php
-$data = $this->data['report_data'];
 
-$header = '<h3>' . $data['presenter_last_name'] . ', ' . $data['presenter_first_name'] . '</h3>';
-$header .= '<h4>Seminar Date: ' . $data['seminar_date'] . '</h4>';
-$studentSurveyHtml = $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 3));
-$facultySurveyHtml = $this->partial('grading/partials/surveys.phtml', array('surveys' => $data['surveys'], 'role_id' => 2));
+$seminarId = $this->params['seminarId'];
 
-$all = $header . $studentSurveyHtml . $facultySurveyHtml;
+$seminarMapper = new Application_Model_SeminarMapper();
 
-$filename = sprintf("%s_%s_%s.pdf", trim($data['presenter_last_name']), trim($data['presenter_first_name']), trim($data['seminar_date']));
+$surveyMapper = new Application_Model_SurveyMapper();
 
-foreach($data['surveys'] as $survey) {
-	$all .= $this->surveyDetail()->format($survey);
+$seminar = $seminarMapper->findById($seminarId);
+
+$surveys = $surveyMapper->getSeminarSurveys($seminarId);
+
+usort($surveys, "compareReviewerLastNames");
+
+$seminar['surveys'] = $surveys;
+
+$seminar['scores'] = $seminarMapper->getSeminarScores($seminarId);
+
+$header = '<h3>' . $seminar['presenter_last_name'] . ', ' . $seminar['presenter_first_name'] . '</h3>';
+
+$header .= '<h4>Seminar Date: ' . $seminar['seminar_date'] . '</h4>';
+
+$presenterDetails = $this->partial('grading/partials/presenterDetails.phtml', array('data' => $seminar));
+
+$surveySummaries = $this->partial('grading/partials/reportSurveySummaries.phtml', array('surveys' => $seminar['surveys']));
+
+$filename = sprintf("%s_%s_%s.pdf", trim($seminar['presenter_last_name']), trim($seminar['presenter_first_name']), trim($seminar['seminar_date']));
+
+$formattedSurveyReport = array();
+for ($count = 0; $count < count($seminar['surveys']); $count++) {
+	$formattedSurveyReport[] = $this->surveyDetail()->formatReport($seminar['surveys'][$count], $count);
 }
 
+$contents = array(
+	'header' => $header,
+	'presenterDetails' => $presenterDetails,
+	'surveySummaries' => $surveySummaries,
+	'formattedSurveyReport' => $formattedSurveyReport
+);
 
-?>
+$report = $this->partial('grading/partials/reportTemplate.phtml', array('contents' => $contents));
 
-<?php
-$this->PDF($all, $filename);
+$this->PDF($report, $filename);
+
+function compareReviewerLastNames($a, $b)
+{
+	return strnatcmp($a['reviewer']['last_name'], $b['reviewer']['last_name']);
+}
+
 exit;
-?>
+
+

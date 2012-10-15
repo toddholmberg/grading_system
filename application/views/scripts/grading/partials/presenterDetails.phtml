@@ -1,0 +1,72 @@
+<?php
+$data = $this->data;
+
+$facultyAverages = $this->surveyAverages()->averageAll($data['surveys'], 3);
+$studentAverages = $this->surveyAverages()->averageAll($data['surveys'], 2);
+
+//$attendanceScore = round(($this->attendance()->score($data['presenter_user_section_id']) * 100)/12, 2);
+// DEBUG: set attendance to 100 for final score validation
+$attendanceScore = round((12 * 100)/12, 2);
+
+$finalScore = isset($data['scores']) ? $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']) : 0;
+
+?>
+
+<h2>Presenter: <?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name']; ?></h2>
+<h3>Seminar Date: <?php echo $data['seminar_date']; ?></h3>
+
+<h4>Presenter Scores</h4>
+<table style="page-break-inside:avoid; border-collapse: collapse; border: 1px solid #ccc;">
+	<caption></caption>
+	<colgroup />
+	<thead>
+		<tr>
+			<th scope="col" colspan="7">Student Survey Data Averages</th>
+			<th scope="col" colspan="7">Faculty Survey Data Averages</th>
+			<th scope="col" colspan="4">Final Scores</th>
+		</tr>
+		<tr>
+			<th scope="col">Pres.</br>Style</th>
+			<th scope="col">Inst.</br>Materials</th>
+			<th scope="col">Overall</br>Pres.</th>
+			<th scope="col">Clinical</br>Data</th>
+			<th scope="col">Conc.</th>
+			<th scope="col">Q&amp;A</th>
+			<th scope="col">Overall</br>Knowledge</th>
+			<th scope="col">Pres.</br>Style</th>
+			<th scope="col">Inst.</br>Materials</th>
+			<th scope="col">Overall</br>Pres.</th>
+			<th scope="col">Clinical</br>Data</th>
+			<th scope="col">Conc.</th>
+			<th scope="col">Q&amp;A</th>
+			<th scope="col">Overall</br>Know.</th>
+			<th scope="col">Prep.</th>
+			<th scope="col">Prof.</th>
+			<th scope="col">Att.</th>
+			<th scope="col">Total</th>
+		</tr>	
+	</thead>
+	<tfoot>
+		<tr>
+			
+		</tr>
+	</tfoot>
+	<tbody>		
+		<tr>
+			<?php foreach($studentAverages as $field): ?>
+			<td><?php echo $field['average']; ?></td>
+			<?php endforeach; ?>
+
+			<?php foreach($facultyAverages as $field): ?>
+			<td><?php echo $field['average']; ?></td>
+			<?php endforeach; ?>
+
+			<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
+			<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
+			<td><?php echo $attendanceScore; ?></td>
+			<td><?php echo $finalScore; ?></td>
+		</tr>
+	</tbody>
+</table>
+
+

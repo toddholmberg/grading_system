@@ -1,0 +1,38 @@
+<html>
+<head>
+
+<style type="text/css">
+body {
+	font-family: sans-serif;
+}
+
+table {
+	page-break-inside:avoid;
+	border-collapse: collapse;
+	border:1px solid #ccc;
+}
+th, td {
+	border:1px solid #ccc;
+	padding: 3px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="presenterDetails">
+<?php echo $this->contents['presenterDetails']; ?>
+</div>
+
+<br/>
+
+<div id="surveySummaries">
+<h4>Grading Survey Summaries</h4>
+<?php echo $this->contents['surveySummaries']; ?>
+</div>
+
+<div id="surveyDetails">
+<?php echo implode('<pagebreak />', $this->contents['formattedSurveyReport']); ?>
+</div>
+</body>
+</html>
