@@ -9,11 +9,6 @@ class Cop_Plugin_ACL extends Zend_Controller_Plugin_Abstract
 		$auth = Zend_Auth::getInstance();
 		$acl = new Cop_Acl();
 		$copsession = new Zend_Session_Namespace('copsession');
-		//Zend_Debug::dump($auth);
-		//Zend_Debug::dump($auth->getIdentity());
-		//Zend_Debug::dump($copsession);
-		//Zend_Debug::dump($acl);
-		error_log(print_r($_SESSION, true));
 		
 		if($auth->hasIdentity() && !empty($auth->getIdentity()->role_title)) {
 	

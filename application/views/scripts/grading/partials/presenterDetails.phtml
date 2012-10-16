@@ -4,9 +4,9 @@ $data = $this->data;
 $facultyAverages = $this->surveyAverages()->averageAll($data['surveys'], 3);
 $studentAverages = $this->surveyAverages()->averageAll($data['surveys'], 2);
 
-//$attendanceScore = round(($this->attendance()->score($data['presenter_user_section_id']) * 100)/12, 2);
+$attendanceScore = round(($this->attendance()->score($data['presenter_user_section_id']) * 100)/12, 2);
 // DEBUG: set attendance to 100 for final score validation
-$attendanceScore = round((12 * 100)/12, 2);
+//$attendanceScore = round((12 * 100)/12, 2);
 
 $finalScore = isset($data['scores']) ? $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']) : 0;
 

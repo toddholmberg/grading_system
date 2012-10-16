@@ -27,26 +27,20 @@ class AuthController extends Zend_Controller_Action
 		 */
 
 		// redirect to CAS form
-		//$adapter = new Zend_Auth_Adapter_Cas($this->_casConfig->cas->toArray());
-		$adapter = new Cop_Auth_Adapter();
+		// CAS returns a unid on sucessful login 
+		$adapter = new Zend_Auth_Adapter_Cas($this->_casConfig->cas->toArray());
+		//$adapter = new Cop_Auth_Adapter(); // testing adapter
 		$auth    = Zend_Auth::getInstance();
 		$result  = $auth->authenticate($adapter);
-		// unid is returned form CAS if login is successful
 		
-		//Zend_Debug::dump($auth->getIdentity());
 
 		if (! $result->isValid()) {
 			$this->_redirect($adapter->getLoginUrl());
 		} 
 
 		if($auth->hasIdentity()) {
-			//Zend_Debug::dump($result); exit;
 			// process unid
 			// 2nd auth level
-			//$unid = 'u0615627';
-
-			//$unid = 'u07687676'; // faculty
-			//$unid = 'u9090909'; // admin
 	
 			$unid = $auth->getIdentity();
 
