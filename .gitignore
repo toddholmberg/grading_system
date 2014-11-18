@@ -1,5 +1,8 @@
 .DS_Store
 data/upload/survey/*.xls
+data/upload/*.xls
 data/upload/survey/*.csv
+data/upload/*.csv
 data/reports/*.pdf
+library/Zend*
 
