@@ -1,3 +1,1 @@
-Production changes:
-
-1. .htaccess: change APPLICATION_ENV to 'production'
+Generic grading system for graduate seminars
