@@ -78,7 +78,7 @@ class Application_Model_UserRoleMapper
 				throw false;
 			}
 		} catch(Exception $e) {
-			echo $this->errorMessage();
+			throw new Exception($e->getMessage());
 		}
 	}	
 

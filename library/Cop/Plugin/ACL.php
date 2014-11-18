@@ -4,6 +4,8 @@ class Cop_Plugin_ACL extends Zend_Controller_Plugin_Abstract
 {
 
 	protected $_defaultRole = 'Guest';
+
+
 	public function preDispatch(Zend_Controller_Request_Abstract $request)
 	{
 		$auth = Zend_Auth::getInstance();
@@ -28,16 +30,17 @@ class Cop_Plugin_ACL extends Zend_Controller_Plugin_Abstract
 			}
 
 		} else {
-
 			if(!$acl->isAllowed($this->_defaultRole, $request->getControllerName() . '::' . $request->getActionName())) {
 
 				$copsession->destination_url = $request->getPathInfo();
 
-				return Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')->setGotoUrl('http://www.pharmacy.utah.edu/');
+				return Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')->setGotoUrl('http://pharmacy.utah.edu');
 
 			}
 
 		}
 
 	}
+
+
 }

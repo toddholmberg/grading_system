@@ -1,5 +1,5 @@
 <?php
-
+require_once( 'CAS.php' ) ;
 class AuthController extends Zend_Controller_Action
 {
 
@@ -8,9 +8,9 @@ class AuthController extends Zend_Controller_Action
 
 	public function init()
 	{
-		/* Initialize action controller here */
 		$this->_casConfig = new Zend_Config_Ini(APPLICATION_PATH . '/configs/cas.ini');
 		$this->_db = Zend_Db_Table::getDefaultAdapter();
+		$this->_config = Zend_Registry::get('config');
 	}
 
 	public function indexAction()
@@ -28,34 +28,29 @@ class AuthController extends Zend_Controller_Action
 
 		// redirect to CAS form
 		// CAS returns a unid on sucessful login 
-		$adapter = new Zend_Auth_Adapter_Cas($this->_casConfig->cas->toArray());
-		//$adapter = new Cop_Auth_Adapter(); // testing adapter
+		
+		// auth adapter class name set in application.ini
+		//$adapter = new $this->_config->authAdapter;
+		$adapter = new Cop_Auth_Adapter();
+
 		$auth    = Zend_Auth::getInstance();
 		$result  = $auth->authenticate($adapter);
-		
-
-		if (! $result->isValid()) {
-			$this->_redirect($adapter->getLoginUrl());
-		} 
 
 		if($auth->hasIdentity()) {
 			// process unid
 			// 2nd auth level
-	
 			$unid = $auth->getIdentity();
 
 			$dbAuth = Zend_Auth::getInstance();
 
-			$dbAuthAdapter = new Zend_Auth_Adapter_DbTable($this->_db, 'userAuthData', 'unid', 'unid', 'AND (role_title = "Faculty" OR role_title = "Admin")');
+			$dbAuthAdapter = new Zend_Auth_Adapter_DbTable($this->_db, 'user_auth', 'unid', 'unid', 'AND (role_title = "Faculty" OR role_title = "Admin")');
 
 			$dbAuthAdapter->setIdentity($unid)->setCredential($unid);
 
 			$dbAuthResult = $dbAuth->authenticate($dbAuthAdapter);
 
 			if($dbAuthResult->isValid()) {	
-
 				$storage = new Zend_Auth_Storage_Session();
-
 				$result = $dbAuthAdapter->getResultRowObject(array(
 							'unid',
 							'first_name',
@@ -65,10 +60,9 @@ class AuthController extends Zend_Controller_Action
 							'role_title'
 							));
 
+
 				$storage->write($result);
-
 				$copsession = new Zend_Session_Namespace('copsession');
-
 				if(isset($copsession->destination_url)) {
 					$url = $copsession->destination_url;
 					unset($copsession->destination_url);
@@ -76,28 +70,26 @@ class AuthController extends Zend_Controller_Action
 				}
 
 				$this->_redirect('index/index');
-
 			} else {
-
 				$this->view->errorMessage = "Your UNID is not registered with this system.";
 			}
 		}
 	}
 
-    public function logoutAction()
-    {
-		
+	public function logoutAction()
+	{
+
 		$storage = new Zend_Auth_Storage_Session();
 		$storage->clear();
 		$this->killSession('Zend_Auth');
 		$this->killSession('copsession');
-		$this->_redirect('index/index');
-    }
+		$this->_redirect('auth/login');
+	}
 
-    public function noauthAction()
-    {
-        // action body
-    }
+	public function noauthAction()
+	{
+		// action body
+	}
 
 	public function killSession($sessionName)
 	{

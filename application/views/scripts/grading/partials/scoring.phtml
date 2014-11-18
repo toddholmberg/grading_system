@@ -6,38 +6,68 @@
 // get assigned scoring faculty
 
 $userMapper = new Application_Model_UserMapper();
-$graders = $userMapper->getFacultyByPYearSectionId(
-	$this->p_year_id,
-	$this->section_id
+
+$graders = $userMapper->getGraders(
+	$this->section_id,
+	$this->academic_year['id']
 );
 
 
-?>
+/*
+$graders = $userMapper->getFacultyByPYearSectionIdAcademicYear(
+	$this->p_year_id,
+	$this->section_id,
+	$this->academic_year['id']
+);
+*/
 
+?>
+<div class="row span8">
+<p>All submitted scores greater than 100 will be reduced to 100 during final score calculation.</p>
+	<div id="scoring_form" class="span4">
 <?php if(empty($graders)): ?>
 <p>No faculty graders assigned.</p>
 <?php else: ?>
 
 <?php foreach($graders as $grader): ?>
 <?php 
+
 $prep_value = 0;
 $prof_value = 0;
 if(!empty($this->scores['graderScores'][$grader['user_id']])) {
-		$prep_value = $this->scores['graderScores'][$grader['user_id']]['prep'];
-		$prof_value = $this->scores['graderScores'][$grader['user_id']]['prof'];
-	}
+	$prep_value = $this->scores['graderScores'][$grader['user_id']]['prep'];
+	$prof_value = $this->scores['graderScores'][$grader['user_id']]['prof'];
+}
 
 ?>
-<h4><?php echo $grader['first_name'] . ', ' . $grader['last_name']; ?></h4>
-<form class="form-inline score">
-	<input type="hidden" name="presenter_user_section_id" value="<?php echo $this->presenter_user_section_id; ?>" />
-	<label>Prep.</label>
-	<input class="input-mini" type="text" name="<?php echo 'prep_' . $this->seminar_id . "_" . $grader['user_id'];?>" id="<?php echo 'prep_' . $this->seminar_id . "_" . $grader['user_id'];?>" value="<?php echo $prep_value; ?>" />
-	<label>Prof.</label>
-	<input class="input-mini" type="text" name="<?php echo 'prof_' . $this->seminar_id . "_" . $grader['user_id'];?>" id="<?php echo 'prof_' . $this->seminar_id . "_" . $grader['user_id'];?>" value="<?php echo $prof_value; ?>" />
-	<button type="submit" class="btn" class="faculty_grading">Submit</button>
-</form>
+		<h4><?php echo $grader['first_name'] . ', ' . $grader['last_name']; ?></h4>
+		<form class="form-inline score">
+			<input type="hidden" name="presenter_user_section_id" value="<?php echo $this->presenter_user_section_id; ?>" />
+			<label>Prep.</label>
+			<input class="input-mini" type="text" name="<?php echo 'prep_' . $this->seminar_id . "_" . $grader['user_id'];?>" id="<?php echo 'prep_' . $this->seminar_id . "_" . $grader['user_id'];?>" value="<?php echo $prep_value; ?>" />
+			<label>Prof.</label>
+			<input class="input-mini" type="text" name="<?php echo 'prof_' . $this->seminar_id . "_" . $grader['user_id'];?>" id="<?php echo 'prof_' . $this->seminar_id . "_" . $grader['user_id'];?>" value="<?php echo $prof_value; ?>" />
+			<button type="submit" class="btn" class="faculty_grading">Submit</button>
+		</form>
 
-<?php endforeach; ?>
+		<?php endforeach; ?>
 
-<?php endif; ?>
+		<?php endif; ?>
+	</div>
+
+	<div id="grading_scale" class="span3">
+		<h4>Letter Grade Range</h4>
+<pre>
+A	 93 - 100
+A-	 90 - 92.9
+B+	 87 - 89.9
+B 	 83 - 86.9
+B-	 80 - 82.9
+C+	 77 - 79.9
+C 	 73 - 76.9
+C-	 70 - 72.9
+D	 65 - 69.9
+E	 < 65
+</pre>
+	</div>
+</div>

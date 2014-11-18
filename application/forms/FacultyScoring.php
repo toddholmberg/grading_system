@@ -12,13 +12,19 @@ class Application_Form_FacultyScoring extends Zend_Form
 		$prep = new Zend_Form_Element_Text('prep');
 		$prep->setLabel('Preparation')
 			->setRequired(true)
-			->addValidator('NotEmpty');
+			->addValidators(array(
+				array('NotEmpty', true),
+				array('Digits')
+			));
 
 		// prof
 		$prof = new Zend_Form_Element_Text('prof');
 		$prof->setLabel('Professionalism')
 			->setRequired(true)
-			->addValidator('NotEmpty');
+			->addValidators(array(
+				array('NotEmpty', true),
+				array('Digits')
+			));
 
 		// Submit button
 		$submit = new Zend_Form_Element_Submit('submit');
@@ -30,4 +36,3 @@ class Application_Form_FacultyScoring extends Zend_Form
 
 
 }
-

@@ -1,0 +1,100 @@
+<html>
+<head>
+
+<style type="text/css">
+body {
+        font-family: sans-serif;
+}
+
+table {
+        page-break-inside:avoid;
+        border-collapse: collapse;
+        border:1px solid #ccc;
+}
+th, td {
+        border:1px solid #ccc;
+        padding: 3px;
+}
+</style>
+</head>
+
+<body>
+<h3><?php echo $this->year; ?> Section Roster Summary (Year: P<?php echo $this->pyear . " - Section: " . $this->section; ?>)</h3>
+<table style="page-break-inside:avoid; border-collapse: collapse; border: 1px solid #ccc;">
+	<caption></caption>
+	<colgroup />
+	<thead>
+		<tr>
+			<th scope="col" colspan="2">Presenter</th>
+			<th scope="col" colspan="7">Student Survey Data Averages</th>
+			<th scope="col" colspan="7">Faculty Survey Data Averages</th>
+			<th scope="col" colspan="4">Final Scores</th>
+		</tr>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Unid</th>
+			<th scope="col">Pres.</br>Style</th>
+			<th scope="col">Inst.</br>Mat.</th>
+			<th scope="col">Overall</br>Pres.</th>
+			<th scope="col">Clinical</br>Data</th>
+			<th scope="col">Conc.</th>
+			<th scope="col">Q&amp;A</th>
+			<th scope="col">Overall</br>Know.</th>
+			<th scope="col">Pres.</br>Style</th>
+			<th scope="col">Inst.</br>Materials</th>
+			<th scope="col">Overall</br>Pres.</th>
+			<th scope="col">Clinical</br>Data</th>
+			<th scope="col">Conc.</th>
+			<th scope="col">Q&amp;A</th>
+			<th scope="col">Overall</br>Know.</th>
+			<th scope="col">Prep.</th>
+			<th scope="col">Prof.</th>
+			<th scope="col">Att.</th>
+			<th scope="col">Total</th>
+		</tr>	
+	</thead>
+	<tfoot>
+		<tr>
+			
+		</tr>
+	</tfoot>
+	<tbody>		
+
+<?php foreach($this->seminars as $data): ?>
+
+<?php $facultyAverages = $this->surveyAverages()->averageAll($data['surveys'], 3); ?>
+<?php $studentAverages = $this->surveyAverages()->averageAll($data['surveys'], 2); ?>
+
+<?php
+$seminarMapper = new Application_Model_SeminarMapper();
+
+$attendanceScore = $seminarMapper->getAttendanceScore($data['seminar_id'], $data['presenter_user_section_id']);
+
+$finalScore = isset($data['scores']) ? $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']) : 0; 
+?>
+		<tr>
+<td><?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name']; ?></td>
+<td><?php echo $data['presenter_unid']; ?></td>
+<?php foreach($studentAverages as $field): ?>
+	<td><?php echo $field['average']; ?></td>
+<?php endforeach; ?>
+
+<?php foreach($facultyAverages as $field): ?>
+	<td><?php echo $field['average']; ?></td>
+<?php endforeach; ?>
+
+<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
+<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
+<td><?php echo $attendanceScore; ?></td>
+<td>
+<?php echo $finalScore['letter'] . " (" . $finalScore['number'] . ")"; ?>
+</td>
+</tr>
+
+<?php endforeach; ?>
+
+	</tbody>
+</table>
+
+</body>
+</html>

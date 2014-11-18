@@ -1,0 +1,20 @@
+<?php
+$surveys = $this->surveys;
+$roleMapper = new Application_Model_RoleMapper();
+$roles = $roleMapper->fetchAll();
+$role_id = array_search(ucfirst($this->reportType), $roles);
+$surveyAverages = $this->surveyAverages()->averageAll($surveys, $role_id);
+$questions = $this->surveyDetail()->questionText();
+$comments = $this->surveyDetail()->allComments($surveys, $role_id);
+
+$blocks = array();
+foreach($questions as $key => $question) {
+	if($key != 'comments') {
+		$blocks[] = $this->partial('grading/partials/reportSurveyBlockTemplate.phtml', array('label' => $key, 'avg' => $surveyAverages[$key], 'question' => $question, 'comments' => $comments));
+	} else {
+		$blocks[] = $this->partial('grading/partials/reportSurveyCommentBlockTemplate.phtml', array('label' => $key, 'question' => $question, 'comments' => $comments[$key], 'role_id' => $role_id));
+	}
+}
+
+echo implode("<br/>", $blocks);
+

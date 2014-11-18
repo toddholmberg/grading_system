@@ -32,13 +32,13 @@
 		<td><?php echo $user->first_name; ?></td>
 		<td><?php echo $user->last_name; ?></td>
 		<td><?php echo $user->email; ?></td>
-		<td><?php echo $user->roles[0]->title; ?></td>
+		<td><?php echo isset($user->roles[0]->title) ? $user->roles[0]->title : '<span style="color: red; font-weight: bold;">None Assigned</span>'; ?></td>
 		<td><?php echo isset($user->p_year) ? 'P' . $user->p_year : ''; ?></td>
 		<td><?php echo $user->section; ?></td>
 		<!--<td><?php echo $user->created_date; ?></td>-->
 		<!--<td><?php echo $user->updated; ?></td>-->
 		<td>
-			<a href="/user/edit-user?user_id=<?php echo $user->id; ?>">edit</a>
+			<a href="<?php echo $this->baseUrl(); ?>/user/edit-user?user_id=<?php echo $user->id; ?>">edit</a>
 		</td>
 	</tr>
 <?php endforeach; ?>

@@ -1,0 +1,28 @@
+<?php
+$section = $this->params['section'];
+$pyear = $this->params['pyear'];
+$seminarMapper = new Application_Model_SeminarMapper();
+$surveyMapper = new Application_Model_SurveyMapper();
+$seminars = $seminarMapper->findCurrentSeminars($pyear, $section);
+$yearData = $this->currentAcademicYear();
+$year = $yearData['year'];
+// get surveys for each seminar
+foreach($seminars as $index => $seminar) {
+	$surveys = $surveyMapper->getSeminarSurveys($seminar['seminar_id']);
+	usort($surveys, "compareReviewerLastNames");
+	$seminars[$index]['surveys'] = $surveys;
+	$seminars[$index]['scores'] = $seminarMapper->getSeminarScores($seminar['seminar_id']);
+}
+
+$rosterOutput = $this->partial('grading/partials/rosterTemplate.phtml', array('seminars' => $seminars, 'pyear' => $pyear, 'section' => $section, 'year' => $year));
+
+$filename = sprintf("p%s_section%s_summary.pdf", trim($pyear), trim($section));
+
+
+$this->PDF($rosterOutput, $filename);
+//echo $rosterOutput;
+
+function compareReviewerLastNames($a, $b)
+{
+	return strnatcmp($a['reviewer']['last_name'], $b['reviewer']['last_name']);
+}

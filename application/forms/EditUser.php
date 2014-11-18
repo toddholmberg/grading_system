@@ -37,8 +37,9 @@ class Application_Form_EditUser extends Zend_Form
 
 		// Access control role
 		$roleData = new Application_Model_DbTable_Roles();
-		$role = new Zend_Form_Element_Select('role');
-		$role->setLabel('Role');
+		$role = new Zend_Form_Element_Select('role_id');
+		$role->setLabel('Role')
+			->setRequired(true);
 		$role->addMultiOption('','Please select...');
 		foreach($roleData->fetchAll() as $roleItem) {
 			$role->addMultiOption($roleItem['id'], $roleItem['title']);
@@ -46,7 +47,7 @@ class Application_Form_EditUser extends Zend_Form
 
 		// P-Year
 		$pYearData = new Application_Model_DbTable_PYears();
-		$pYear = new Zend_Form_Element_Select('p_year');
+		$pYear = new Zend_Form_Element_Select('p_year_id');
 		$pYear->setLabel('Current P-Year');
 		$pYear->addMultiOption('', 'Please select...');
 		foreach($pYearData->fetchAll() as $pYearItem) {
@@ -57,7 +58,7 @@ class Application_Form_EditUser extends Zend_Form
 
 		//Current Section
 		$sectionData = new Application_Model_DbTable_Sections();
-		$section = new Zend_Form_Element_Select('section');
+		$section = new Zend_Form_Element_Select('section_id');
 		$section->setLabel('Current Section');
 		$section->addMultiOption('', 'Please select...');
 		foreach($sectionData->fetchAll() as $sectionItem) {

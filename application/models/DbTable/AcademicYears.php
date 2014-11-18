@@ -6,10 +6,11 @@ class Application_Model_DbTable_AcademicYears extends Zend_Db_Table_Abstract
 	protected $_name = 'academic_year';
 	protected $_rowClass = 'Application_Model_DbTable_AcademicYear';
 
-
-
 	public function getAcademicYears() {
-		$row = $this->fetchAll();
+		$row = $this->fetchAll(
+			$this->select()
+				->order('year DESC')
+		);
 		if(!$row) {
 			throw new Exception('No academic years');
 		}
@@ -22,7 +23,12 @@ class Application_Model_DbTable_AcademicYears extends Zend_Db_Table_Abstract
 		if(!$row) {
 			throw new Exception('No academic years');
 		}
-		return $row->current()->toArray();
-	}	
+		$currentAcademicYear = $row->current();
+		if(!empty($currentAcademicYear)) {
+			return $row->current()->toArray();
+		} else {
+			return false;
+		}
+	}
 
 }

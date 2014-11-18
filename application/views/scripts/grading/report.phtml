@@ -1,6 +1,7 @@
 <?php
 
 $seminarId = $this->params['seminarId'];
+$reportType = $this->params['reportType'];
 
 $seminarMapper = new Application_Model_SeminarMapper();
 
@@ -20,33 +21,83 @@ $header = '<h3>' . $seminar['presenter_last_name'] . ', ' . $seminar['presenter_
 
 $header .= '<h4>Seminar Date: ' . $seminar['seminar_date'] . '</h4>';
 
-$presenterDetails = $this->partial('grading/partials/presenterDetails.phtml', array('data' => $seminar));
+// format report by type
+switch ($reportType) {
 
-$surveySummaries = $this->partial('grading/partials/reportSurveySummaries.phtml', array('surveys' => $seminar['surveys']));
+	// full detail report: presenter summary, reviewer averages, review details.
+	case 'full':
 
-$filename = sprintf("%s_%s_%s.pdf", trim($seminar['presenter_last_name']), trim($seminar['presenter_first_name']), trim($seminar['seminar_date']));
+		$presenterDetails = $this->partial('grading/partials/presenterDetails.phtml', array('data' => $seminar));
 
-$formattedSurveyReport = array();
-for ($count = 0; $count < count($seminar['surveys']); $count++) {
-	$formattedSurveyReport[] = $this->surveyDetail()->formatReport($seminar['surveys'][$count], $count);
+		$surveySummaries = $this->partial('grading/partials/reportSurveySummaries.phtml', array('surveys' => $seminar['surveys']));
+
+		$filename = sprintf("%s_%s_%s_full.pdf", trim($seminar['presenter_last_name']), trim($seminar['presenter_first_name']), trim($seminar['seminar_date']));
+
+		$formattedSurveyReport = array();
+		for ($count = 0; $count < count($seminar['surveys']); $count++) {
+			$formattedSurveyReport[] = $this->surveyDetail()->formatReport($seminar['surveys'][$count], $count, $reportType);
+		}
+
+		$contents = array(
+				'header' => $header,
+				'presenterDetails' => $presenterDetails,
+				'surveySummaries' => $surveySummaries,
+				'formattedSurveyReport' => $formattedSurveyReport
+				);
+
+		$reportOutput = $this->partial('grading/partials/reportTemplate.phtml', array('contents' => $contents));
+
+		break;
+
+
+	// Faculty summary report: Block-formatted faculty summary report
+	case 'faculty':
+
+		$presenterDetails = $this->partial('grading/partials/presenterDetails.phtml', array('data' => $seminar));
+
+		$surveySummaries = $this->partial('grading/partials/reportSurveyBlockSummaries.phtml', array('surveys' => $seminar['surveys'], 'reportType' => $reportType));
+
+		$filename = sprintf("%s_%s_%s_faculty.pdf", trim($seminar['presenter_last_name']), trim($seminar['presenter_first_name']), trim($seminar['seminar_date']));
+
+		$contents = array(
+				'header' => $header,
+				'presenterDetails' => $presenterDetails,
+				'surveySummaries' => $surveySummaries
+				);
+
+		$reportOutput = $this->partial('grading/partials/reportFacultyTemplate.phtml', array('contents' => $contents));
+
+		break;
+
+
+		// Student summary report: Block-formatted student summary report
+	case 'student':
+		$presenterDetails = $this->partial('grading/partials/presenterDetails.phtml', array('data' => $seminar));
+
+		$surveySummaries = $this->partial('grading/partials/reportSurveyBlockSummaries.phtml', array('surveys' => $seminar['surveys'], 'reportType' => $reportType));
+
+		$filename = sprintf("%s_%s_%s_student.pdf", trim($seminar['presenter_last_name']), trim($seminar['presenter_first_name']), trim($seminar['seminar_date']));
+
+		$contents = array(
+				'header' => $header,
+				'presenterDetails' => $presenterDetails,
+				'surveySummaries' => $surveySummaries
+				);
+
+		$reportOutput = $this->partial('grading/partials/reportFacultyTemplate.phtml', array('contents' => $contents));
+
+		break;
 }
 
-$contents = array(
-	'header' => $header,
-	'presenterDetails' => $presenterDetails,
-	'surveySummaries' => $surveySummaries,
-	'formattedSurveyReport' => $formattedSurveyReport
-);
+$this->PDF($reportOutput, $filename);
+//echo $reportOutput;
 
-$report = $this->partial('grading/partials/reportTemplate.phtml', array('contents' => $contents));
-
-$this->PDF($report, $filename);
 
 function compareReviewerLastNames($a, $b)
 {
 	return strnatcmp($a['reviewer']['last_name'], $b['reviewer']['last_name']);
 }
 
-exit;
+//exit;
 
 

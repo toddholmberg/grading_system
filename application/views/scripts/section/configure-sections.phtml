@@ -1,0 +1,56 @@
+<div id="section-data">
+
+<?php
+
+$message = '';
+
+// if the year was submitted, init the sections
+// if(isset($this->configureSectionsFormData)) {
+
+// 	if(!empty($sections['error'])) {
+// 		$message = sprintf("<p>%s</p>", $sections['error']);
+// 	} else {
+// 		$message = '<p>New sections successfully created.</p>';
+// 	}
+
+// }
+
+?>
+
+
+<h2>Configure Sections for the Current Academic Year</h2>
+<div class="span8">
+<ul>
+<li>Use this form to configure the required section attendance count for the current academic year.</li>
+<li>This form will configure the section attendance count for both the P3 and P4 sections for the current semester.</li>
+</ul>
+
+<h4>Current Academic Year: <?php echo $this->currentAcademicYear['year']; ?></h4>
+
+<?php echo $this->configureSectionsForm; ?>
+</div>
+
+</div>
+
+<div id="dialog-modal" title="Message">
+<p><?php echo $this->message; ?></p>
+</div>
+
+<script type="text/javascript">
+
+var message = '<?php echo $this->message; ?>';
+
+if((typeof(message) != 'undefined') && message != '') {
+	$(function() {
+		$( "#dialog-modal" ).dialog({
+			height: 140,
+			modal: true
+		});
+	});
+}
+
+</script>
+
+
+
+

@@ -32,7 +32,7 @@ class Application_Form_CreateUser extends Zend_Form
 
 		// Access control role
 		$roleData = new Application_Model_DbTable_Roles();
-		$role = new Zend_Form_Element_Select('role');
+		$role = new Zend_Form_Element_Select('role_id');
 		$role->setLabel('Role');
 		$role->addMultiOption('', 'Please select...');
 		foreach($roleData->fetchAll() as $roleItem) {
@@ -41,7 +41,7 @@ class Application_Form_CreateUser extends Zend_Form
 
 		// P-Year
 		$pYearData = new Application_Model_DbTable_PYears();
-		$pYear = new Zend_Form_Element_Select('p_year');
+		$pYear = new Zend_Form_Element_Select('p_year_id');
 		$pYear->setLabel('Current P-Year');
 		$pYear->addMultiOption('', 'Please select...');
 		foreach($pYearData->fetchAll() as $pYearItem) {
@@ -52,18 +52,23 @@ class Application_Form_CreateUser extends Zend_Form
 
 		//Current Section
 		$sectionData = new Application_Model_DbTable_Sections();
-		$section = new Zend_Form_Element_Select('section');
+		$section = new Zend_Form_Element_Select('section_id');
 		$section->setLabel('Current Section');
 		$section->addMultiOption('', 'Please select...');
 		foreach($sectionData->fetchAll() as $sectionItem) {
 			$section->addMultiOption($sectionItem['id'], $sectionItem['number']);
 		}
 
+		// Set as grader
+		$grader = new Zend_Form_Element_Checkbox('is_grader');
+        $grader->setLabel('Grader')
+                 ->setAttrib('id','is_grader');
+
 		// Submit button
 		$submit = new Zend_Form_Element_Submit('submit');
 		$submit->setLabel('Save');
 
-		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $submit));
+		$this->addElements(array($unid, $firstName, $lastName, $email, $role, $pYear, $section, $grader, $submit));
 
 	}
 }

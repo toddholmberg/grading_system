@@ -1,0 +1,5 @@
+.DS_Store
+data/upload/survey/*.xls
+data/upload/survey/*.csv
+data/reports/*.pdf
+

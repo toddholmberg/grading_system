@@ -1,4 +1,64 @@
-<br /><br />
-<div id="view-content">
-	<p>View script for controller <b>Upload</b> and script/action name <b>users</b></p>
-</div>
+<div class="row">
+	<div class="span12">
+		<h1>User Data Upload</h1>
+	</div><!-- end span12 -->
+</div><!-- end row -->
+<div class="row">
+	<div class="span6">
+		<h4>Current Academic Year: <?php echo $this->currentAcademicYear['year']; ?></h4>
+
+		<?php echo $this->userUploadForm; ?>
+
+		<?php if(!empty($this->errors)): ?>
+		<div class="well">
+			<h5>Upload Errors:</h5>
+			<p>One or more errors occurred during the user upload.</p>
+			<?php foreach($this->errors as $error): ?>
+				<p>
+					<?php //print_r($error); ?>
+					<?php if($error['error_type'] == 'User data missing'): ?>
+						<b>error type</b>: <?php echo $error['error_type']; ?><br/>
+						missing fields: <?php echo $error['fields']; ?><br/> 
+						submitted data: <pre><?php print_r($error['data']); ?></pre>
+					<?php endif; ?>
+
+					<?php if($error['error_type'] == 'User already exists'): ?>
+						<b>error type</b>: <?php echo $error['error_type']; ?><br/>
+						unid: <?php echo $error['unid']; ?><br/> 
+						Name: <?php echo $error['last_name']; ?>, <?php echo $error['first_name']; ?>
+					<?php endif; ?>
+				</p>	
+
+			<?php endforeach; ?>
+		</div>
+		<?php elseif(isset($this->success)): ?>
+		<p>Upload successful. No errors encountered.</p>
+		<?php endif; ?>
+	</div><!-- end span6 -->
+	<div class="span6">
+		<h4>Instructions:</h4>
+		<p>Use this form to upload user data and configure the user's pyear, section, and grader status.</p>
+
+		<h5>Uploading user data</h5>
+		<ol>
+			<li>
+				Format the spreadheet like the <a href="/seminars/index/download-template?filename=user_upload_template.xls">user upload spreadsheet template</a>.
+				<ul>
+					<li>All users need a p-year, section, and grader status assigned.</li>
+				</ul>
+			</li>
+			<li>Browse for the spreadsheet with the 'Browse" button.</li>
+			<li>Click the 'Submit' button to send the data.</li>
+		</ol>
+		<h5>Guidelines</h5>
+		<ul>
+			<li>Allowed file types: .csv or .xls.</li>
+			<li>If using a .csv then all text fields must be quoted.</li>
+			<li>All users need a p-year, section, and grader status assigned.</li>
+		</ul>	
+		<h5>Templates</h5>
+		<ul>
+			<li><a href="/seminars/index/download-template?filename=user_upload_template.xls">User upload spreadsheet template</a></li>
+		</ul>
+	</div>
+</div><!-- end row -->

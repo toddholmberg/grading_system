@@ -13,11 +13,11 @@
 
 <?php echo $this->headLink()
 	//->appendStylesheet('//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css')
-	->appendStylesheet('/css/bootstrap.min.css')
-	->appendStylesheet('/css/bootstrap-responsive.css')
-	->appendStylesheet('/css/fixed-layout.css')
-	->appendStylesheet('/css/userTable.css')
-	->appendStylesheet('/css/custom-theme/jquery-ui-1.8.23.custom.css');
+	->appendStylesheet($this->baseUrl() . '/css/bootstrap.min.css')
+	->appendStylesheet($this->baseUrl() . '/css/bootstrap-responsive.css')
+	->appendStylesheet($this->baseUrl() . '/css/fixed-layout.css')
+	->appendStylesheet($this->baseUrl() . '/css/userTable.css')
+	->appendStylesheet($this->baseUrl() . '/css/custom-theme/jquery-ui-1.8.23.custom.css');
 ?>
 
 
@@ -25,7 +25,7 @@
 		'http://html5shim.googlecode.com/svn/trunk/html5.js',
 		'text/javascript',
 		array('conditional'=>'lt IE 9')
-	);
+	)->appendFile('http://code.jquery.com/jquery-1.8.1.min.js');
 ?>
 
 	
@@ -40,26 +40,55 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </a>
-      <a class="brand" href="/">Seminar Grading</a>
+      <a class="brand" href="<?php echo $this->baseUrl(); ?>">Seminar Grading</a>
       <div class="nav-collapse">
         <ul class="nav">
-          <li><a href="/">Home</a></li>
-		  <li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Users <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="/user">View Users</a></li>
-              <li><a href="/user/create-user">Create a user</a></li>
-            </ul>
-          </li>
-          <!--<li><a href="/section">Section Builder</a></li>-->
+          <li><a href="<?php echo $this->baseUrl(); ?>">Home</a></li>
+    		  <li class="dropdown">
+    			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Users <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo $this->baseUrl(); ?>/user">View Users</a></li>
+                  <li><a href="<?php echo $this->baseUrl(); ?>/user/create-user">Create a user</a></li>
+                  <li><a href="<?php echo $this->baseUrl(); ?>/upload/users">Upload User Data</a></li>
+                </ul>
+              </li>
+              <!--<li><a href="/section">Section Builder</a></li>-->
           <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">Grading <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="/grading">Seminar Grading Tool</a></li>
-              <li><a href="/upload/survey">Upload Seminar Survey Data</a></li>
-            </ul>	
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Grading <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo $this->baseUrl(); ?>/grading">Seminar Grading Tool</a></li>
+                  <li><a href="<?php echo $this->baseUrl(); ?>/upload/survey">Upload Seminar Survey Data</a></li>
+                </ul>	
+    		  </li>
+    		  <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Section Tools<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo $this->baseUrl(); ?>/section/init-sections">Initialize sections for a year</a></li>
+                  <li><a href="<?php echo $this->baseUrl(); ?>/section/configure-sections">Configure sections for the current academic year</a></li>
+                </ul>	
+    		  </li> 
+    		  <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo $this->baseUrl(); ?>/section/academic-year-settings">Academic Year</a></li>
+                  <li><a href="<?php echo $this->baseUrl(); ?>/archive">Archive the Current Academic Year</a></li>
+                  <li><a href="<?php echo $this->baseUrl(); ?>/reset">Reset the Grading Database</a></li>
+                </ul>	
+    		  </li>
         </ul>
       </div><!-- /.nav-collapse -->
+      <div class="nav-collapse pull-right">
+        <ul class="nav">
+          <li><p class="navbar-text">Current Academic Year: <b><?php echo $this->currentAcademicYear['year']; ?></b></p></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i><?php echo $this->identity->first_name . ' ' . $this->identity->last_name; ?><b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo $this->baseUrl(); ?>/auth/logout">Logout</a></li>
+                </ul> 
+          </li>
+        </ul>
+      </div><!-- /.nav-collapse -->
+
     </div><!-- /.container -->
   </div><!-- /.navbar-inner -->
 </div><!-- /.navbar -->
@@ -68,14 +97,14 @@
 	<?php echo $this->layout()->content; ?>
 </div>
 <?php echo $this->inlineScript()
-	->appendFile('http://code.jquery.com/jquery-1.8.1.min.js')
-	->appendFile('/js/jquery-ui-1.8.23.custom.min.js')
-	->appendFile('/js/jquery.jeditable.min.js')
-	->appendFile('/js/bootstrap.min.js')
-	->appendFile('/js/jquery.dataTables.min.js')
-	->appendFile('/js/userTable.js')
-	->appendFile('/js/uploadTools.js')
-	->appendFile('/js/gradingTools.js');
+	->appendFile($this->baseUrl() . '/js/jquery-ui-1.8.23.custom.min.js')
+	->appendFile($this->baseUrl() . '/js/jquery.jeditable.min.js')
+	->appendFile($this->baseUrl() . '/js/bootstrap.min.js')
+	->appendFile($this->baseUrl() . '/js/jquery.dataTables.min.js')
+	->appendFile($this->baseUrl() . '/js/userTable.js')
+	->appendFile($this->baseUrl() . '/js/uploadTools.js')
+	->appendFile($this->baseUrl() . '/js/gradingTools.js')
+	->appendFile($this->baseUrl() . '/js/configureSections.js');
 ?>
 
 </body>

@@ -12,14 +12,10 @@ $(function($) {
 
 
 	// set pyear and section buttons
-	$('#p' + pyear).addClass('active');	
+	$('#p' + pyear).addClass('active');		
 	$('#s' + section).addClass('active');	
 
-	// pyear and section button events
-	//var pyear = '';
-	//var section = '';
-
-	var sectionForm = $("<form id='section_filter' action='/grading' method='post'><input type='hidden' id='p_year_id_input' name='p_year_id' value=''/><input type='hidden' id='section_id_input' name='section_id' value=''/></form>");
+	var sectionForm = $("<form id='section_filter' action='/seminars/grading' method='post'><input type='hidden' id='p_year_id_input' name='p_year_id' value=''/><input type='hidden' id='section_id_input' name='section_id' value=''/></form>");
 
 	$('body').append(sectionForm);
 
@@ -31,7 +27,7 @@ $(function($) {
 			if(typeof(section) != 'undefined') {
 				$("#p_year_id_input").val(pyear);
 				$("#section_id_input").val(section);
-				console.log($("#p_year_id_input").val() + ' -- ' + $("#section_id_input").val());
+				//console.log($("#p_year_id_input").val() + ' -- ' + $("#section_id_input").val());
 				$('form#section_filter').submit();	
 			}	
 			
@@ -46,7 +42,7 @@ $(function($) {
 			if(typeof(pyear) != 'undefined') {
 				$("#p_year_id_input").val(pyear);
 				$("#section_id_input").val(section);
-				console.log($("#p_year_id_input").val() + ' -- ' + $("#section_id_input").val());
+				//console.log($("#p_year_id_input").val() + ' -- ' + $("#section_id_input").val());
 				$('form#section_filter').submit();	
 			}
 		});
@@ -64,14 +60,17 @@ $(function($) {
 	// faculty score submission
 	$('.score').submit(function(e){
 		$.post(
-			"/grading/save-scores", 
+			"/seminars/grading/save-scores", 
 			$(this).serialize(),
 			function(data) {
+				//console.log(data);
 				var score = $.parseJSON(data);
 				var prepField = '#prep_' + score.presenter_user_section_id;
 				var profField = '#prof_' + score.presenter_user_section_id;
+				var finalField = '#final_' + score.presenter_user_section_id;
 				$(prepField).html(score.prepAvg);
 				$(profField).html(score.profAvg);
+				$(finalField).html(score.finalScore.letter + ' (' + score.finalScore.number + ')');
 			}
 		);	
 		e.preventDefault();
@@ -82,7 +81,7 @@ $(function($) {
 	$('.survey-row').click(function(){
 		var surveyData = eval('survey' + $(this).attr('id'));
 		$.post(
-			'/grading/format-survey-detail',
+			'/seminars/grading/format-survey-detail',
 			{
 				survey_id: $(this).attr('id'),
 				survey_data: surveyData
@@ -96,17 +95,67 @@ $(function($) {
 
 	// generate report and insert download link
 	// allow one click on button per page load
-	$('.report').one('click', function(data){
+	$('.faculty-report').one('click', function(data){
 		$(this).addClass('disabled');
 		var valArray = $(this).attr('id').split('seminar_');
 		var seminarId = valArray[1];
-		var reportUrlBlock = '#reportUrl' + seminarId;
-		var spinner = $('<img/>').attr('src', '/img/progress.gif');
+		var reportUrlBlock = '#facultyReportUrl' + seminarId;
+		var spinner = $('<img/>').attr('src', '/seminars/img/progress.gif');
 		$(reportUrlBlock).html(spinner);
 		$.post(
-			'grading/report',
+			'/seminars/grading/report',
 			{
-				seminarId: seminarId 
+				seminarId: seminarId,
+				reportType: 'faculty'
+			},
+			/*function(data){
+				$('<div></div>').html(data).dialog({modal: true, width: 900, height: 700, title: 'Survey Details'});
+			}*/
+
+			function(url) {
+				var reportLink = $('<a></a>').html('Download report').attr('href', url);	
+				$(reportUrlBlock).html(reportLink);	
+			}
+		);
+		return false;
+	});
+
+	$('.student-report').one('click', function(data){
+		$(this).addClass('disabled');
+		var valArray = $(this).attr('id').split('seminar_');
+		var seminarId = valArray[1];
+		var reportUrlBlock = '#studentReportUrl' + seminarId;
+		var spinner = $('<img/>').attr('src', '/seminars/img/progress.gif');
+		$(reportUrlBlock).html(spinner);
+		$.post(
+			'/seminars/grading/report',
+			{
+				seminarId: seminarId,
+				reportType: 'student' 
+			},
+			/*function(data){
+				$('<div></div>').html(data).dialog({modal: true, width: 900, height: 700, title: 'Survey Details'});
+			}*/
+			function(url) {
+				var reportLink = $('<a></a>').html('Download report').attr('href', url);	
+				$(reportUrlBlock).html(reportLink);	
+			}
+		);
+		return false;
+	});
+
+	$('.full-report').one('click', function(data){
+		$(this).addClass('disabled');
+		var valArray = $(this).attr('id').split('seminar_');
+		var seminarId = valArray[1];
+		var reportUrlBlock = '#fullReportUrl' + seminarId;
+		var spinner = $('<img/>').attr('src', '/seminars/img/progress.gif');
+		$(reportUrlBlock).html(spinner);
+		$.post(
+			'/seminars/grading/report',
+			{
+				seminarId: seminarId,
+				reportType: 'full' 
 			},
 			function(url) {
 				var reportLink = $('<a></a>').html('Download report').attr('href', url);	
@@ -116,42 +165,34 @@ $(function($) {
 		return false;
 	});
 
+	// roster
+	$('.roster').on('click', function(data){
+		var valArray = $(this).attr('id').split('_');
+		var pyear = valArray[1];
+		var section = valArray[2];
 
-	// more/less functionality
-	var showChar = 50;
-	var ellipsestext = "...";
-	var moretext = "more";
-	var lesstext = "less";
-	$('.more').each(function() {
-		var content = $(this).html();
-
-		if(content.length > showChar) {
-
-			var c = content.substr(0, showChar);
-			var h = content.substr(showChar-1, content.length - showChar);
-
-			var html = c + '<br/><span class="morecontent"><span>' + h + '</span><a href="" class="morelink">'+moretext+'</a></span>';
-
-			$(this).html(html);
-		}
-
-	});
-
-	$(".morelink").click(function(){
-		if($(this).hasClass("less")) {
-			$(this).removeClass("less");
-			$(this).html(moretext);
-		} else {
-			$(this).addClass("less");
-			$(this).html(lesstext);
-		}
-		$(this).parent().prev().toggle();
-		$(this).prev().toggle();
+		$.post(
+			'/seminars/grading/roster',
+			{
+				pyear: pyear,
+				section: section
+			},
+			function(url){
+				$("#secretIFrame").attr("src",url);
+			}
+		);
 		return false;
 	});
 
-
-
+		
+	$('.presenter').hover(
+		function(){
+			//$(this).children().show();
+		},
+		function(){
+			//$(this).children().hide();
+		}
+	);	
 
 
 });

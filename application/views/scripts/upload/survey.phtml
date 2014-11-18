@@ -1,15 +1,108 @@
-<h1>Seminar Data Upload</h1>
+<div class="row">
+	<div class="span12">
+		<h1>Seminar Data Upload</h1>
+	</div>
+</div>
+<div class="row">
+<div class="span6">
 
-<?php echo $this->surveyUploadForm; ?>
-<?php if(isset($this->surveyData)): ?>
-
-<?php
-foreach(json_decode($this->surveyData) as $id => $chunk) {
-	echo "<h1>$id</h1>";
-	//Zend_Debug::dump($chunk);
-}
-?>
+<?php if(!empty($this->errors)): ?>
+	<div class="well">
+	<h5>Upload Errors:</h5>
+		<?php foreach($this->errors as $error): ?>
+			<?php if($error['error_type'] == 'invalid_presenter'): ?>
+			
+				<?php $message = "<p>There  was an error with the submitted presenters. All presenters must be valid to save the surveys. The surveys were not saved. Please check the UNIDs against the system users. Correct the bad UNID and resubmit.</p>"; ?>
+			<?php else: ?>
+			
+				<?php $message = "<p>One or more errors occurred during survey uploading. Each block below contains a qualtrics_id referencing the row in the upload spreadsheet. The system skipped these rows, continuing with the next available valid row. The survey data for skipped rows was not saved. All other rows were saved.</p>"; ?>
+			<?php endif; ?>
+		<?php endforeach; ?>
+		<?php echo $message; ?>
+		<?php foreach($this->errors as $error): ?>
+			<?php if($error['error_type'] == 'invalid_presenter'): ?>
+				<p>
+					<b>error type</b>: <?php echo $error['error_type']; ?><br/>
+					presenter unid: <?php echo $error['presenter_unid']; ?><br/>
+					seminar date: <?php echo $error['seminarDate']; ?>
+				</p>
+			<?php else: ?>
+				<p>
+					<b>error type</b>: <?php echo $error['error_type']; ?><br/>
+					qualtrics_id: <?php echo $error['qualtrics_id']; ?><br/> 
+					survey date: <?php echo $error['survey_date']; ?><br/> 
+					presenter name: <?php echo $error['presenter_name']; ?><br/> 
+					presenter unid: <?php echo $error['presenter_unid']; ?><br/> 
+					<?php if($error['error_type'] == 'duplicate_survey'): ?>
+						<?php if(!empty($error['reviewer'])): ?>
+						reviewer name: <?php echo $error['reviewer']['last_name'] . ', ' . $error['reviewer']['first_name']; ?><br/>
+						reviewer unid: <?php echo $error['reviewer']['unid']; ?><br/>
+						<?php endif; ?>
+					<?php endif; ?>
+				</p>	
+			<?php endif; ?>
+		<?php endforeach; ?>
+	</div>
+<?php elseif(isset($this->success)): ?>
+<p>Upload successful. No errors encountered.</p>
 <?php endif; ?>
 
+		<form method='<?php echo $this->surveyUploadForm->getMethod(); ?>' action='<?php echo $this->surveyUploadForm->getAction(); ?>' enctype='<?php echo $this->surveyUploadForm->getAttrib('enctype'); ?>'>
+
+			<table class="table table-striped table-bordered table-condensed">
+				<tbody>
+					<tr>
+						<th>Presenter</th>
+						<th>UNID</th>
+						<th>Seminar Date</th>
+					</tr>
+					<?php for($i = 1; $i <= 10; $i++): ?>
+					<tr>
+						<th><?php echo $i; ?></th>
+						<td><?php echo $this->surveyUploadForm->{'unid' . $i}; ?></td>
+						<td><?php echo $this->surveyUploadForm->{'seminarDate' . $i}; ?></td>
+					</tr>
+					<?php endfor; ?>
+				</tbody>
+			</table>
+
+			<div class="row">
+				<div class="span4">
+				<h4><?php echo $this->surveyUploadForm->survey->getLabel(); ?></h4>
+				<?php echo $this->surveyUploadForm->survey; ?>
+				</div>
+			</div>
+			<br/>
+			<div class="row">
+				<div class="span4">
+					<?php echo $this->surveyUploadForm->Submit; ?>
+				</div>
+			</div>
+
+		</form>
+	</div>
+	<div class="span6">
+		<div class="row">
+			<div class="span6">
+			<h4>Instructions:</h4>
+			<h5>How to upload survey data</h5>
+			<ol>
+				<li>Enter a valid UNID and seminar date for each presentation. This value should match the UNID for the presenters listed in column 'O' of the survey spreadsheet.</li>
+				<li>Browse for your survey spreadsheet.</li>
+				<li>Click 'Submit'.</li>
+			</ol>
+			<h5>Guidelines</h5>
+			<ul>
+				<li>You can have up to 10 presenters per survey spreadsheet.</li>
+				<li>Each number in column 'O' of the spreadsheet should correspond to a row in the table on the left.</li>
+				<li>The upload will fail if the spreadsheet does not match the format of the <a href="/seminars/index/download-template?filename=survey_upload_template.xls">survey spreadsheet template</a>.
+			</ul>
+			<h5>Templates</h5>
+			<ul>
+				<li><a href="/seminars/index/download-template?filename=survey_upload_template.xls">Survey spreadsheet template</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
 
 

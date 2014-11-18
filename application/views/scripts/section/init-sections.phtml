@@ -1,25 +1,25 @@
-<?php
-// if the year was submitted, init the sections
-if(isset($this->initSectionsFormData)) {
-	$this->section()->buildSections($this->initSectionsFormData['year']);
-}
-
-$currentAcademicYear = $this->currentAcademicYear();
-
-$sections = $this->section()->getSectionsByAcademicYearId($currentAcademicYear['id']);
-?>
-
-
 <h2>Initialize Sections for an Academic Year</h2>
 
-<div class="span4">
+
+
+<div class="span8">
+
+<h4>Current Academic Year: <?php echo $this->currentAcademicYear['year']; ?></h4>
+
 <p>
-Use this form to initialize a new year of sections. 
+Use this form to initialize the section structure for the current academic year.
 </p>
 
-<p>Current Academic Year: <?php $currentAcademicYear['year']; ?></p>
-
 <?php echo $this->initSectionsForm; ?>
+
+<?php echo $this->message; ?>
+
+<p>Be Advised:</p>
+<ul>
+<li>For an academic year other than the current academic year you must first add the year using the <a href="/seminars/section/academic-year-settings">Academic Year Settings</a> tool.</li>
+<li>This tool will not delete data or change the current academic year setting. It will only add section mapping data to the appropriate table in the database.</li>
+</ul>
+
 
 </div>
 

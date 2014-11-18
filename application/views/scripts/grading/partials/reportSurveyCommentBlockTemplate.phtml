@@ -1,0 +1,14 @@
+<div class="survey-block-summary">
+<?php foreach($this->comments as $key => $responses): ?>
+	<?php if($this->role_id == 3): ?>
+	<h3>Overall Comments</h3>
+	<?php else: ?>
+	<h3><?php echo $this->question['questions'][$key]; ?></h3>
+	<?php endif; ?>
+	<div style="border: 1px solid #ccc; padding: 1em;">
+		<?php foreach($responses as $response): ?>
+			<p><?php echo $response; ?></p>
+		<?php endforeach; ?>
+	</div>
+<?php endforeach; ?>
+</div>

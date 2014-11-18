@@ -2,6 +2,9 @@
 
 class Application_Model_SeminarMapper
 {
+	const PREP_SCORE_MAX = 35;
+	const PROF_SCORE_MAX = 100;
+	const PRECISION = 2;
 	protected $_dbTable;
 
 	public function setDbTable($dbTable)
@@ -177,6 +180,7 @@ class Application_Model_SeminarMapper
 			)
 		*/
 
+		// build score array from $data
 		$scoreArray = array();
 		foreach($data as $key => $value) {
 			$keyData = explode('_', $key);
@@ -193,30 +197,155 @@ class Application_Model_SeminarMapper
 		}
 		$scoreArray['presenter_user_section_id'] = $data['presenter_user_section_id'];
 
-		$table = new Application_Model_DbTable_Scores();
-		$select = $table->select()
+
+		if($scoreArray['prep'] > self::PREP_SCORE_MAX) {
+			$scoreArray['prep'] = self::PREP_SCORE_MAX;
+		}
+		if($scoreArray['prof'] > self::PROF_SCORE_MAX) {
+			$scoreArray['prof'] = self::PROF_SCORE_MAX;
+		}
+
+		$scoresTable = new Application_Model_DbTable_Scores();
+		$select = $scoresTable->select()
 			->where('seminar_id = ?', $scoreArray['seminar_id'])
 			->where('grader_user_id = ?', $scoreArray['grader_user_id']);
 			
-		$row = $table->fetchRow($select);
+		$row = $scoresTable->fetchRow($select);
 		if(empty($row)) {
-			$newRow = $table->createRow();
+			$newRow = $scoresTable->createRow();
 			$newRow->seminar_id= $scoreArray['seminar_id'];
 			$newRow->prep = $scoreArray['prep'];
 			$newRow->prof = $scoreArray['prof'];
 			$newRow->grader_user_id = $scoreArray['grader_user_id'];
 			$newRow->save();
+			$scoreData = $newRow;
 		} else {
 			$row->prep = $scoreArray['prep'];
 			$row->prof = $scoreArray['prof'];
 			$row->save();
+			$scoreData = $row;
 		}
 
 		$averageScoreArray = $this->getFacultyScoreAverages($scoreArray['seminar_id']);
 		$averageScoreArray['grader_user_id'] = $scoreArray['grader_user_id'];
 		$averageScoreArray['presenter_user_section_id'] = $scoreArray['presenter_user_section_id'];
+
+		$attendanceScore = $this->calculateAttendanceScore($scoreArray['presenter_user_section_id'], $scoreArray['seminar_id'], $scoreArray['grader_user_id']);
+
+		$averageScoreArray['finalScore'] = $this->getFinalScore($scoreArray['seminar_id'], $scoreArray['presenter_user_section_id'], $scoreData->prep, $scoreData->prof, $attendanceScore);
+
 		return $averageScoreArray;	
 	}
+
+	public function getFinalScore($seminarId, $presenterUserSectionId, $prepAvg, $profAvg, $attendanceScore)
+	{
+		$surveyMapper = new Application_Model_SurveyMapper();
+		$surveys = $surveyMapper->getSeminarSurveys($seminarId);
+
+		$facultyAverages = $surveyMapper->averageAll($surveys, 3);
+		$studentAverages = $surveyMapper->averageAll($surveys, 2);
+
+		// debug: set attendance to 100 for final score validation
+		//$attendancescore = round((12 * 100)/12, 2);
+		return $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$prepAvg,$profAvg);
+	}
+
+	public function getGraderUserIdByPresenterUserSectionId($presenterUserSectionId)
+	{
+			$sectionMapper = new Application_Model_SectionMapper();
+			$graders = $sectionMapper->getUserSectionGraders($presenterUserSectionId);
+			$graderUserId = $graders[0]['user_id'];
+			return $graderUserId;
+	}
+
+
+	public function calculateAttendanceScore($userSectionId, $seminarId, $graderUserId = null)
+	{
+		if(empty($graderUserId)) {
+			$graderUserId = $this->getGraderUserIdByPresenterUserSectionId($userSectionId);
+		}	
+
+		// get presenter section config
+		$userMapper = new Application_Model_UserMapper();
+		$presenterData = $userMapper->getUserByUserSectionId($userSectionId);
+		$sectionMapper = new Application_Model_SectionMapper();
+		$presenterSectionMap = $sectionMapper->getUserCurrentSectionMapId($presenterData['id']);
+		$sectionConfig = $sectionMapper->getSectionConfig($presenterSectionMap['id']);
+
+		/**
+		 * if attended > attendance required in section_config table
+		 * then attended will equal the required value
+		 */
+		$attendanceRequired = $sectionConfig->attendance_count;
+		$attended = ($this->attended($userSectionId) > $attendanceRequired) ? $attendanceRequired : $this->attended($userSectionId);
+
+		// init scores table
+		$scoresTable = new Application_Model_DbTable_Scores();
+		
+		// get save attendance value
+		$savedSelect = $scoresTable->select()
+			->from($scoresTable, array('attendance'))
+			->where('seminar_id = ?', $seminarId);
+		$savedScore = $scoresTable->fetchRow($savedSelect)->attendance;
+
+		if($attended > $savedScore) {
+			// save new score to scoring table
+			$scoreRowId = $scoresTable->update(
+					array('attendance' => $attended),
+					$scoresTable->getAdapter()->quoteInto('seminar_id = ?', $seminarId)
+					);	
+		}		
+
+		// return score for output
+		$attendanceScore = round((($attended/$attendanceRequired) * 100), 2);
+		return $attendanceScore;
+	
+	}
+
+	public function getAttendanceScore($seminarId, $userSectionId)
+	{
+		// get presenter section config
+		$userMapper = new Application_Model_UserMapper();
+		$presenterData = $userMapper->getUserByUserSectionId($userSectionId);
+		$sectionMapper = new Application_Model_SectionMapper();
+		$presenterSectionMap = $sectionMapper->getUserCurrentSectionMapId($presenterData['id']);
+		$sectionConfig = $sectionMapper->getSectionConfig($presenterSectionMap['id']);
+
+		$attendanceRequired = $sectionConfig->attendance_count;
+
+		$scoresTable = new Application_Model_DbTable_Scores();
+		$row = $scoresTable->fetchRow(
+				$scoresTable->select()->where('seminar_id = ?', $seminarId)
+				);
+		if(!empty($row)) {
+
+			// return score for output
+			$attendanceScore = round((($row->attendance/$attendanceRequired) * 100), 2);
+			return $attendanceScore;
+		} else {
+			return 0;
+		}
+	}
+
+/*
+	public function attendanceScore($userSectionId)
+	{
+		// get presenter section config
+		$userMapper = new Application_Model_UserMapper();
+		$presenterData = $userMapper->getUserByUserSectionId($userSectionId);
+		$sectionMapper = new Application_Model_SectionMapper();
+		$presenterSectionMap = $sectionMapper->getUserCurrentSectionMapId($presenterData['id']);
+		$sectionConfig = $sectionMapper->getSectionConfig($presenterSectionMap['id']);
+
+		 //* if attended > attendance required in section_config table
+		 //* then attended will equal the required value
+		$attendanceRequired = $sectionConfig->attendance_count;
+		$attended = ($this->attended($userSectionId) > $attendanceRequired) ? $attendanceRequired : $this->attended($userSectionId);
+
+		return round((($attended/$attendanceRequired) * 100), 2);
+	
+	}
+*/
 
 	public function getFacultyScoreAverages($seminarId)
 	{
@@ -239,14 +368,20 @@ class Application_Model_SeminarMapper
 
 	public function averageScores($rowArray)
 	{
+
 		$prep = 0;
 		$prof = 0;
 		foreach($rowArray as $row) {
 			$prep += $row['prep'];
 			$prof += $row['prof'];	
 		}
-		$prepAvg = $prep/2;
-		$profAvg = $prof/2;
+
+		// Allows for any number of graders.
+		// As of 12/2012, it changed from two graders
+		// per section to one.
+		$count = !empty($rowArray) ? count($rowArray) : 1;
+		$prepAvg = $prep/$count;
+		$profAvg = $prof/$count;
 		
 		$averages = array(
 			'prepAvg' => $prepAvg,
@@ -287,6 +422,170 @@ class Application_Model_SeminarMapper
 			return false;
 		}
 	}
+
+
+	public function attendanceDates($presenterUserSectionId)
+	{
+		try{
+			$db = Zend_Db_Table::getDefaultAdapter();
+			$sql = 'SELECT seminar.date, user.last_name, user.first_name FROM survey LEFT JOIN seminar ON survey.seminar_id = seminar.id LEFT JOIN user__section us ON us.id = seminar.presenter_user_section_id LEFT JOIN user ON us.user_id = user.id WHERE survey.reviewer_user_section_id = :presenterUserSectionId';
+			$sth = $db->prepare($sql);
+			$sth->bindParam(':presenterUserSectionId', $presenterUserSectionId);
+			if($sth->execute()) {
+				$results = $sth->fetchAll(PDO::FETCH_ASSOC);
+				return $results;
+			} else {
+				echo Zend_Debug::dump($this->errorInfo());
+			}	
+		} catch(Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	public function attended($presenterUserSectionId)
+	{
+		try {
+			// find all surveys where reviewer_user_section_id = $presenterUserSectionId
+			$db = Zend_Db_Table::getDefaultAdapter();
+			$sql = "SELECT count(*) as survey_count FROM survey WHERE reviewer_user_section_id = $presenterUserSectionId";
+			$sth = $db->prepare($sql);
+			if($sth->execute()) {
+				$result = $sth->fetch(PDO::FETCH_ASSOC);	
+				return $result['survey_count'];
+				//return $sth->rowCount();
+			} else {
+				echo Zend_Debug::dump($this->errorInfo());
+			}
+		} catch(Exception $e) {
+			echo $e->errorMessage();
+		}
+		
+	}
+
+	public function finalScore($facultyAverages, $studentAverages, $attendanceScore, $facPrepAvg, $facProfAvg)
+	{
+		$presRawScore = $this->_presRawScore($facultyAverages, $studentAverages);
+		$presScore = $this->_presScore($presRawScore);
+		$prepScore = $this->_prepScore($facPrepAvg);	
+		$number = round(((0.5 * $presScore) + (0.35 * $prepScore) + (0.05 * $facProfAvg) + (0.1 * $attendanceScore)), self::PRECISION);
+
+		//error_log("$number = round((0.5 * $presScore) + (0.35 * $prepScore) + (0.05 * $facProfAvg) + (0.1 * $attendanceScore), " . self::PRECISION . ")");
+
+		$letter = $this->letterGrade($number);
+		
+		return array('number' => $number, 'letter' => $letter);
+	}	
+
+	private function _prepScore($rawScore)
+	{
+		return ($rawScore/self::PREP_SCORE_MAX) * 100;
+	}
+
+	private function _presRawScore($facultyAverages, $studentAverages)
+	{
+		$facWeightedAvg = 0;
+		foreach($facultyAverages as $field) {
+			$facWeightedAvg += $field['weight'] * $field['average'];	
+		}
+		
+		$studWeightedAvg = 0;
+		foreach($studentAverages as $field) {
+			$studWeightedAvg += $field['weight'] * $field['average'];	
+		}
+
+		$prs = (0.75 * $facWeightedAvg) + (0.25 * $studWeightedAvg);
+
+		return $prs;
+	}
+
+	private function _presScore($prs)
+	{
+		switch(true) {
+			case($prs >= 6.5):
+				return (93 + (7 * ($prs - 6.5)));
+				break;
+
+			case(($prs < 6.5) && ($prs >= 5.5)):
+				return (90 + (3 * ($prs - 5.5)));
+				break;	
+
+			case(($prs < 5.5) && ($prs >= 4.5)):
+				return (87 + (3 * ($prs - 4.5)));
+				break;		
+
+			case(($prs < 4.5) && ($prs >= 3.5)):
+				return (83 + (4 * ($prs - 3.5)));
+				break;
+
+			case(($prs < 3.5) && ($prs >= 2.5)):
+				return (80 + (3 * ($prs - 2.5)));
+				break;
+
+			case(($prs < 2.5) && ($prs >= 1.5)):
+				return (77 + (3 * ($prs - 1.5)));
+				break;
+
+			case(($prs < 1.5) && ($prs >= 0.5)):
+				return (73 + (4 * ($prs - 0.5)));
+				break;
+		}
+	}
+
+	private function letterGrade($value) {
+			/*
+		Letter Grade Range	
+			
+		A	 93 - 100
+		A-	 90 - 92.9
+		B+	 87 - 89.9
+		B 	 83 - 86.9
+		B-	 80 - 82.9
+		C+	 77 - 79.9
+		C 	 73 - 76.9
+		C-	 70 - 72.9
+		D	 65 - 69.9
+		E	 < 65
+			*/	
+		switch(true) {
+			case ($value >  93):
+				return 'A';
+				break;
+			case (($value < 92.9) && ($value > 90)):
+				return 'A-';
+				break;
+			case (($value < 89.9) && ($value > 87)):
+				return 'B+';
+				break;
+			case (($value < 86.9) && ($value > 83)):
+				return 'B';
+				break;
+
+			case (($value < 82.9) && ($value > 80)):
+				return 'B-';
+				break;
+
+			case (($value < 79.9) && ($value > 77)):
+				return 'C+';
+				break;
+
+			case (($value < 76.9) && ($value > 73)):
+				return 'C';
+				break;
+
+			case (($value < 72.9) && ($value > 70)):
+				return 'C-';
+				break;
+
+			case (($value < 69.9) && ($value > 65)):
+				return 'D';
+				break;
+			case ($value < 65):
+				return 'E';
+				break;
+		}
+
+	}
+
 	
 }
 

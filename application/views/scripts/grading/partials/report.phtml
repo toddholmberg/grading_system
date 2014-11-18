@@ -1,6 +1,20 @@
 <p>
-<button id="seminar_<?php echo $this->seminar_id; ?>" class="btn btn-primary report" type="button">Generate Report</button>
+<button id="seminar_<?php echo $this->seminar_id; ?>" class="btn btn-primary faculty-report" type="button">Generate Faculty Summary Report</button>
 </p>
 
-<p id="reportUrl<?php echo $this->seminar_id; ?>" class="reportUrl">
+<p id="facultyReportUrl<?php echo $this->seminar_id; ?>" class="reportUrl">
+</p>
+
+<p>
+<button id="seminar_<?php echo $this->seminar_id; ?>" class="btn btn-primary student-report" type="button">Generate Student Summary Report</button>
+</p>
+
+<p id="studentReportUrl<?php echo $this->seminar_id; ?>" class="reportUrl">
+</p>
+
+<p>
+<button id="seminar_<?php echo $this->seminar_id; ?>" class="btn btn-primary full-report" type="button">Generate Full Report</button>
+</p>
+
+<p id="fullReportUrl<?php echo $this->seminar_id; ?>" class="reportUrl">
 </p>

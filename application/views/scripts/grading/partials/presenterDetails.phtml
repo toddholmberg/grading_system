@@ -4,11 +4,12 @@ $data = $this->data;
 $facultyAverages = $this->surveyAverages()->averageAll($data['surveys'], 3);
 $studentAverages = $this->surveyAverages()->averageAll($data['surveys'], 2);
 
-$attendanceScore = round(($this->attendance()->score($data['presenter_user_section_id']) * 100)/12, 2);
-// DEBUG: set attendance to 100 for final score validation
-//$attendanceScore = round((12 * 100)/12, 2);
 
-$finalScore = isset($data['scores']) ? $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']) : 0;
+$seminarMapper = new Application_Model_SeminarMapper();
+
+$attendanceScore = $seminarMapper->getAttendanceScore($data['seminar_id'], $data['presenter_user_section_id']);
+
+$finalScore = isset($data['scores']) ? $seminarMapper->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']) : 0;
 
 ?>
 
@@ -64,7 +65,9 @@ $finalScore = isset($data['scores']) ? $this->finalScore($facultyAverages, $stud
 			<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
 			<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
 			<td><?php echo $attendanceScore; ?></td>
-			<td><?php echo $finalScore; ?></td>
+			<td>
+				<?php echo $finalScore['letter'] . " (" . $finalScore['number'] . ")"; ?>
+			</td>
 		</tr>
 	</tbody>
 </table>

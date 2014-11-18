@@ -41,6 +41,8 @@ class ErrorController extends Zend_Controller_Action
         }
         
         $this->view->request   = $errors->request;
+
+		Zend_Debug::dump($errors);
     }
 
     public function getLog()

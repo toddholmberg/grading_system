@@ -35,20 +35,33 @@ class Application_Model_RoleMapper
 			->setTitle($row->title);
 	}
 
+	public function findByTitle($title)
+	{
+		try {
+			$table = $this->getDbTable();
+			$where = array('title = ?' => ucfirst($title));
+			$row = $table->fetchRow($where);
+			if(!empty($row)) {
+				return $row->toArray();
+			} else {
+				return false;
+			}
+		} catch(Exception $e) {
+			echo $e->getMessage();
+		}
+	
+	}
+
+
 	public function fetchAll()
 	{
 		$resultSet = $this->getDbTable()->fetchAll();
 		$roles = array();
 		foreach ($resultSet as $row) {
-			$role = new Application_Model_DbTable_Role();
-			$role->setId($row->id)
-				->setTitle($row->title);
-			$roles[] = $role;
+			$roles[$row->id] = $row->title;
 		}
 		return $roles;
 	}
-
-
 
 }
 

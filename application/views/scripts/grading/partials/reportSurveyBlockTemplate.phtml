@@ -1,0 +1,78 @@
+<div class="survey-block-summary">
+	<table class="table table-condensed table-bordered table-striped"  style="page-break-inside: avoid;">
+		<caption>
+		</caption>
+		<thead>
+			<tr>
+			<?php if($this->avg['NA']): ?>
+				<th colspan="11">
+			<?php else: ?>
+				<th colspan="10">
+			<?php endif; ?>
+					<h4><?php echo $this->question['title']; ?></h4>
+				</th>
+			</tr>
+					
+			<tr style="background-color: #ccc">
+				<th>#</th>
+				<th>Question</th>
+				<th>A</th>
+				<th>A-</th>
+				<th>B+</th>
+				<th>B</th>
+				<th>B-</th>
+				<th>C+</th>
+				<th>C</th>
+				<?php if($this->avg['NA']): ?>
+				<th>NA</th>
+				<?php endif; ?>
+				<th>Mean</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php $count = 0; ?>
+			<?php foreach($this->question['questions'] as $key => $value): ?>
+			<tr>
+				<?php if(strpos($key, 'comment') === false): ?>
+				<td><?php echo ++$count; ?></td>
+				<td><?php echo $value; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][7]) ? $this->avg['qValues'][$key]['counts'][7] : 0; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][6]) ? $this->avg['qValues'][$key]['counts'][6] : 0; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][5]) ? $this->avg['qValues'][$key]['counts'][5] : 0; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][4]) ? $this->avg['qValues'][$key]['counts'][4] : 0; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][3]) ? $this->avg['qValues'][$key]['counts'][3] : 0; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][2]) ? $this->avg['qValues'][$key]['counts'][2] : 0; ?></td>
+				<td><?php echo isset($this->avg['qValues'][$key]['counts'][1]) ? $this->avg['qValues'][$key]['counts'][1] : 0; ?></td>
+
+					<?php if($this->avg['NA']): ?>
+						<td><?php echo isset($this->avg['qValues'][$key]['counts'][0]) ? $this->avg['qValues'][$key]['counts'][0] : 0; ?></td>
+					<?php endif; ?>
+
+				<td>
+				<?php 
+					if(!empty($this->avg['qValues'][$key]['counts'])){
+						$counts = $this->avg['qValues'][$key]['counts'];
+						unset($counts[0]);
+						echo array_sum($counts) > 0 ? round(array_sum($this->avg['qValues'][$key]['values']) / array_sum($counts), 2) : 0;
+					} else {
+						echo 0;
+					}
+
+				?>
+				</td>
+				<?php endif; ?>
+			</tr>
+			<?php endforeach; ?>
+
+		</tbody>
+	</table>
+
+	<h4><?php echo $this->question['title']; ?> Comments</h4>
+	<div style="border: 1px solid #ccc; padding: 1em;">
+	<?php foreach($this->comments[$this->label] as $comments): ?>
+	<p><?php echo $comments; ?></p>
+	<?php endforeach; ?>
+	</div>
+
+</div>
+<pagebreak />

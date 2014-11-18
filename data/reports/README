@@ -1,0 +1,3 @@
+This is the home for the downloaded reports.
+
+Also, without this file, git won't let include the reports directory.

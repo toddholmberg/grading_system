@@ -1,18 +1,32 @@
 <?php
 $seminarMapper = new Application_Model_SeminarMapper();
 $surveyMapper = new Application_Model_SurveyMapper();
+$sectionMapper = new Application_Model_SectionMapper();
+$roleMapper = new Application_Model_RoleMapper();
+$userMapper = new Application_Model_UserMapper();
+
+$studentRoleData = $roleMapper->findByTitle('student');
+$facultyRoleData = $roleMapper->findByTitle('faculty');
+
+$academicYears = new Application_Model_DbTable_AcademicYears();
+$currentAcademicYear = $academicYears->getCurrentAcademicYear();
 
 // get all seminars for curent academic year
 $pyear = $this->p_year_id; 
 $section = $this->section_id;
 
-// 
 $seminars = $seminarMapper->findCurrentSeminars($pyear, $section);
+
+$sectionData = $sectionMapper->findSectionIds($currentAcademicYear['id'], $pyear, $section, $studentRoleData['id']);
+
+$presenters = $userMapper->getUsersBySectionIdAndRoleId($sectionData[0]['id'], $studentRoleData['id']);
+//usort($surveys, "compareReviewerLastNames");
+
 
 // get surveys for each seminar
 foreach($seminars as $index => $seminar) {
 	$surveys = $surveyMapper->getSeminarSurveys($seminar['seminar_id']);
-	usort($surveys, "compareReviewerLastNames");
+	
 	$seminars[$index]['surveys'] = $surveys;
 	$seminars[$index]['scores'] = $seminarMapper->getSeminarScores($seminar['seminar_id']);
 }
@@ -50,32 +64,72 @@ a.morelink {
 	width: 150px;
 	text-align: center;
 }
+
+.presenter {
+	position: relative;
+	display: inline-block;
+}
+
+.presenter_menu {
+	display: none;
+	position: absolute;
+	top: 0px;
+	right: 50%;
+}
+
 </style>
 
 <div class="container">
-	<div class="row-fluid span9">
-		<?php echo $this->partial('grading/partials/sectionNav.phtml', array('p_year_id' => $this->p_year_id, 'section_id' => $this->section_id)); ?>
-	</div><!-- end row-fluid span12 -->
-	<div class="row span9">
-		<h3><?php echo "Year: P$pyear <br/>Section: $section"; ?></h3>
-	</div><!-- end row-fluid span12 -->
+	<div class="row">
+		<div class="span9">
+			<?php echo $this->partial('grading/partials/sectionNav.phtml', array('p_year_id' => $this->p_year_id, 'section_id' => $this->section_id)); ?>
+		</div><!-- end span4 -->
+	</div><!-- end row -->
+	<div class="row">
+		<div class="span4">
+			<h3><?php echo "Year: P$pyear - Section: $section"; ?></h3>
+			<p><a href="/seminars/grading/roster" class="roster" id="roster_<?php echo $pyear . "_" . $section; ?>">Download section roster</a></p>
+			<iframe id="secretIFrame" src="" style="display:none; visibility:hidden;"></iframe>	
+		</div><!-- end span4 -->
+	</div><!-- end row -->
 
 
 
-<?php foreach($seminars as $data): ?>
 
+
+<?php foreach($presenters as $presenter): ?>
 	<!-- BEGIN seminar -->
-	<div class="span9">
+	<div class="row">
+
+		<div class="span9">
+
+	<?php $data = null; ?>
+
+
+	<?php foreach($seminars as $seminar): ?>
+		<?php if($seminar['presenter_unid'] == $presenter['unid']): ?>
+			<?php $data = $seminar; ?>
+		<?php endif; ?>
+	<?php endforeach; ?>
+
+		<div class="row">
+		<h4 class="presenter" id="<?php echo $presenter['unid']; ?>"><?php echo sprintf("%s, %s - %s", $presenter['last_name'], $presenter['first_name'], $presenter['unid']); ?>
+			<?php if(isset($data['seminar_id'])): ?>
+			<ul class="presenter_menu">
+				<li class="delete_seminar"><a href="seminars/delete/<?php echo $data['seminar_id']; ?>">delete</a></li>
+			</ul>
+			<?php endif; ?>
+		</h4>
+		</div>
 	
 	<?php if(!empty($data['surveys'])): ?>		
 		<?php
 		$facultyAverages = $this->surveyAverages()->averageAll($data['surveys'], 3);
 		$studentAverages = $this->surveyAverages()->averageAll($data['surveys'], 2);
-		$attendanceScore = round(($this->attendance()->score($data['presenter_user_section_id']) * 100)/12, 2);
-		// DEBUG: set attendance to 100 for final score validation
-		//$attendanceScore = round((12 * 100)/12, 2);
-		$finalScore = $this->finalScore($facultyAverages, $studentAverages, $attendanceScore,$data['scores']['prepAvg'],$data['scores']['profAvg']);
+		$attendanceScore = $seminarMapper->getAttendanceScore($data['seminar_id'], $data['presenter_user_section_id']);
+		$finalScore = $seminarMapper->getFinalScore($data['seminar_id'], $data['presenter_user_section_id'], $data['scores']['prepAvg'], $data['scores']['profAvg'], $attendanceScore);
 		?>
+
 		<!-- BEGIN presenter_details -->
 		<table  cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered table-condensed">
 			<caption></caption>
@@ -89,17 +143,15 @@ a.morelink {
 					<th scope="col" colspan="4">Final Scores</th>
 				</tr>
 				<tr>
-					<th scope="col">Name</th>
-					<th scope="col">Unid</th>
 					<th scope="col">Pres.</br>Style</th>
-					<th scope="col">Inst.</br>Materials</th>
+					<th scope="col">Inst.</br>Mat.</th>
 					<th scope="col">Overall</br>Pres.</th>
 					<th scope="col">Clinical</br>Data</th>
 					<th scope="col">Conc.</th>
 					<th scope="col">Q&amp;A</th>
-					<th scope="col">Overall</br>Knowledge</th>
+					<th scope="col">Overall</br>Know.</th>
 					<th scope="col">Pres.</br>Style</th>
-					<th scope="col">Inst.</br>Materials</th>
+					<th scope="col">Inst.</br>Mat.</th>
 					<th scope="col">Overall</br>Pres.</th>
 					<th scope="col">Clinical</br>Data</th>
 					<th scope="col">Conc.</th>
@@ -118,8 +170,6 @@ a.morelink {
 			</tfoot>
 			<tbody>		
 				<tr class="success">
-					<td><?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name']; ?></td>
-					<td><?php echo $data['presenter_unid']; ?></td>
 					<?php foreach($studentAverages as $field): ?>
 					<td><?php echo $field['average']; ?></td>
 					<?php endforeach; ?>
@@ -131,7 +181,9 @@ a.morelink {
 					<td id="prep_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['prepAvg']; ?></td>
 					<td id="prof_<?php echo $data['presenter_user_section_id']; ?>"><?php echo $data['scores']['profAvg']; ?></td>
 					<td><?php echo $attendanceScore; ?></td>
-					<td><?php echo $finalScore; ?></td>
+					<td id="final_<?php echo $data['presenter_user_section_id']; ?>" style="white-space: nowrap;">
+						<?php echo $finalScore['letter'] . " (" . $finalScore['number'] . ")"; ?>
+					</td>
 				</tr>
 			</tbody>
 		</table><!-- END presenter_details -->
@@ -148,7 +200,7 @@ a.morelink {
 			</ul>
 
 			<div class="tab-table" id="seminar_scoring_<?php echo $data['seminar_id']; ?>">
-				<?php echo $this->partial('grading/partials/scoring.phtml', array('p_year_id' => $pyear, 'section_id' => $section, 'seminar_id' => $data['seminar_id'], 'presenter_user_section_id' => $data['presenter_user_section_id'], 'scores' => $data['scores'])); ?>
+				<?php echo $this->partial('grading/partials/scoring.phtml', array('academic_year' => $currentAcademicYear, 'p_year_id' => $pyear, 'section_id' => $section, 'seminar_id' => $data['seminar_id'], 'presenter_user_section_id' => $data['presenter_user_section_id'], 'scores' => $data['scores'])); ?>
 			</div>
 			<div class="tab-table" id="seminar_faculty_<?php echo $data['seminar_id']; ?>">
 				<?php echo $this->partial('grading/partials/surveySummaries.phtml', array('surveys' => $data['surveys'], 'role_id' => 3)); ?>
@@ -168,13 +220,15 @@ a.morelink {
 	</div><!-- End surveys -->
 
 	<?php else: ?>
-		<h4 "span2">
-		<?php echo $data['presenter_last_name'] . ', ' . $data['presenter_first_name'] . '(' . $data['presenter_user_id']  . ') - ' . $data['presenter_unid'] . ' - ' . $data['seminar_date']; ?>
-		</h4>	
-		<p>No surveys recorded for this seminar</p>
+		<div class="row">
+			<div class="span4"><p>No surveys recorded for this seminar</p></div>
+		</div><!-- end row -->
 	<?php endif; ?>
-	<br/>
+	
+		</div> <!-- End span9 -->
 	</div> <!-- End seminar -->
+	<hr/>
+
 <?php endforeach; ?>
 
 </div> <!-- end container-fluid -->

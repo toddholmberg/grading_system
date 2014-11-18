@@ -12,6 +12,7 @@ class Zend_View_Helper_PDF extends Zend_View_Helper_Abstract
 			'en-GB-x',
 			'Letter'
 		);
+		$mpdf->shrink_tables_to_fit=1;
 		$mpdf->WriteHTML($html);
 		
 		$mpdf->Output(
@@ -19,7 +20,7 @@ class Zend_View_Helper_PDF extends Zend_View_Helper_Abstract
 			'F'
 		);
 
-		echo "/grading/download-report/$filename";
+		echo $this->view->baseUrl() . "/grading/download-report/$filename";
 
 	}
 

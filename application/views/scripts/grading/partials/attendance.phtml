@@ -8,16 +8,16 @@ $seminarData = $this->attendance()->dates(($this->presenter_user_section_id));
 	<p>This student has reviewed the following seminars:</p>
 	<table class="table table-bordered span6">
 		<tr><th class="span1">Count</th><th>Date</th><th>Presenter</th></tr>
-		<tr>
 		<?php
 		$count = 0;
 		foreach($seminarData as $seminar) {
+			echo "<tr>";
 			echo "<td>" . ++$count . "</td>";
 			echo "<td>" . date('m/d/Y', strtotime($seminar['date']))  . "</td>";
 			echo "<td>" . $seminar['last_name'] . ', ' . $seminar['first_name']  . "</td>";
+			echo "</tr>";
 		}
 		?>
-		</tr>
 	</table>
 <?php endif; ?>
 

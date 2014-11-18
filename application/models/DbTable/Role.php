@@ -6,7 +6,7 @@ class Application_Model_DbTable_Role extends Zend_Db_Table_Row_Abstract
     protected $_name = 'role';
 	protected $_primary = array('id');
 
-	protected $_tableClass = 'Application_Model_DbTable_Role';
+	protected $_tableClass = 'Application_Model_DbTable_Roles';
 	protected $_dependentTables = array('Application_Model_DbTable_UserRole');
 
 	protected $_id;

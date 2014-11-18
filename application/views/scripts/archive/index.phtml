@@ -1,0 +1,44 @@
+<div class="row">
+
+	<div class="span12">
+		<h1>Archive the Current Academic Year</h1>
+
+	
+
+		<div class="row">
+			<div class="span6">
+				<? echo $this->archiveForm; ?>
+
+				<div class="row">
+					<div class="span6">
+						<?php if(!empty($this->archiveList)): ?>
+						<h3>Existing Archives</h3>
+						<div id="archives">
+						<ul>
+						<?php foreach($this->archiveList as $filepath): ?>
+							<li><a href="/seminars/index/download-archive?filename=<?php echo basename($filepath); ?>"><?php echo basename($filepath); ?></a></li>
+						<?php endforeach; ?>
+						</ul>
+						</div>
+						<?php endif; ?>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="span6">
+				<h4>Instructions:</h4>
+				<ul>
+					<li>Click the 'Archive' button to create an archive of the data for the current academic year.</li>
+					<li>This action will not destroy any existing data.</li>
+					<li>Click the 'Download archive' link to retrieve the current archive.</li>
+				</ul
+
+			</div>
+
+		</div>	
+
+	</div>
+
+</div>
+
